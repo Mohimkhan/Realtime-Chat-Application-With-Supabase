@@ -6,13 +6,9 @@ import { appName, LOGOUT_MODAL_ID } from "@/constants";
 import LogoutModal from "../modals/LogoutModal";
 import { ThemeBtn } from "./ThemeBtn";
 import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 
 const Header = () => {
-  const { data: session } = authClient.useSession();
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
-
-  console.log("session ", session?.user?.id);
 
   return (
     <>
@@ -22,9 +18,9 @@ const Header = () => {
             <div
               tabIndex={0}
               role="button"
-              className={`btn btn-ghost btn-circle ${
-                session?.user ? "mr-5" : ""
-              }`}
+              // className={`btn btn-ghost btn-circle ${
+              //   session?.user ? "mr-5" : ""
+              // }`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +95,7 @@ const Header = () => {
                   className="group-hover:text-primary-color"
                   onClick={() => {
                     const LogoutModal = document.getElementById(
-                      LOGOUT_MODAL_ID
+                      LOGOUT_MODAL_ID,
                     ) as HTMLDialogElement;
                     LogoutModal.showModal();
                   }}
@@ -142,7 +138,7 @@ const Header = () => {
             className={`dropdown dropdown-end flex justify-center items-center gap-3 md:gap-4 w-full`}
           >
             <ThemeBtn />
-            {session?.user ? (
+            {/* {session?.user ? (
               <>
                 <AnimatedTooltip
                   items={[
@@ -205,14 +201,14 @@ const Header = () => {
                   </Link>
                 </div>
               </>
-            )}
+            )} */}
           </div>
         </div>
       </header>
       <LogoutModal
         onConfirmation={() => {
           setIsUserActionVisible(false);
-          authClient.signOut();
+          // authClient.signOut();
         }}
         onCancellation={() => setIsUserActionVisible(false)}
       />

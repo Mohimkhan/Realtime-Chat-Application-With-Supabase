@@ -46,7 +46,9 @@ export default function RootLayout({
           <div className="container mx-auto px-[10px] sm:px-0">
             <Header />
             <CustomToastContainer />
-            {children}
+            <main className="w-full flex flex-col min-h-[85dvh]">
+              {children}
+            </main>
             <Footer />
           </div>
         </NextThemesProvider>

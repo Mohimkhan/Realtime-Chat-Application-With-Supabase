@@ -1,9 +1,14 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Login() {
+  const [loading, setLoading] = useState<boolean>(false);
+
   const handleLogin = async () => {
+    setLoading(true);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -15,17 +20,27 @@ export default function Login() {
       },
     });
 
-    console.log({ data, error });
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div>
-      <button
-        className="bg-yellow-400 text-white p-2 rounded"
-        onClick={handleLogin}
-      >
-        Login with google
-      </button>
+    <div className="flex-1 flex items-center justify-center">
+      <div className="bg-black border-[1px] px-4 py-2 border-white/50 w-[450px] h-[200px] rounded-lg flex flex-col items-stretch gap-2 justify-center">
+        <h1 className="text-2xl">Welcome!</h1>
+        <p className="text-sm">Sign in to your account to continue</p>
+        <button
+          className="mt-2 bg-white font-bold text-black p-2 rounded-md"
+          onClick={handleLogin}
+        >
+          Login with google {loading && "..."}
+        </button>
+      </div>
     </div>
   );
 }

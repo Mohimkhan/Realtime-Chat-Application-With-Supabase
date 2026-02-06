@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -40,6 +41,16 @@ export default function Login() {
         >
           Login with google {loading && "..."}
         </button>
+
+        <p className="text-white flex items-center mt-2">
+          Don't have an account?{" "}
+          <Link
+            className="ml-1 underline underline-offset-2"
+            href="/register"
+          >
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );

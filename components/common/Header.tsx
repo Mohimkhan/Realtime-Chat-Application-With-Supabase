@@ -6,9 +6,12 @@ import { appName, LOGOUT_MODAL_ID } from "@/constants";
 import LogoutModal from "../modals/LogoutModal";
 import { ThemeBtn } from "./ThemeBtn";
 import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
+import { useCurrentUser } from "@/hooks";
+import { supabase } from "@/lib/supabase/client";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
+  const { user } = useCurrentUser();
 
   return (
     <>
@@ -18,9 +21,7 @@ const Header = () => {
             <div
               tabIndex={0}
               role="button"
-              // className={`btn btn-ghost btn-circle ${
-              //   session?.user ? "mr-5" : ""
-              // }`}
+              className={`btn btn-ghost btn-circle ${user ? "mr-5" : ""}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -138,22 +139,25 @@ const Header = () => {
             className={`dropdown dropdown-end flex justify-center items-center gap-3 md:gap-4 w-full`}
           >
             <ThemeBtn />
-            {/* {session?.user ? (
+            {user ? (
               <>
                 <AnimatedTooltip
                   items={[
                     {
-                      id: session?.user?.id.charCodeAt(
-                        Math.floor(Math.random() * session?.user?.id.length)
+                      id: user?.id.charCodeAt(
+                        Math.floor(Math.random() * user?.id.length),
                       ),
-                      image: session?.user?.image || "/avatar/skeleton_6.jpg",
-                      name: session?.user?.name?.slice(
+                      image:
+                        user?.user_metadata?.avatar_url ||
+                        "/avatar/skeleton_6.jpg",
+                      name: user.user_metadata?.name.slice(
                         0,
-                        session?.user?.name?.indexOf(" ")
+                        user.user_metadata?.name.indexOf(" "),
                       ),
-                      designation: session?.user?.designation ?? "",
+                      designation: user?.user_metadata?.designation ?? "",
                     },
                   ]}
+                  setIsUserActionVisible={setIsUserActionVisible}
                 />
                 {isUserActionVisible && (
                   <ul
@@ -174,7 +178,7 @@ const Header = () => {
                         type="button"
                         onClick={() => {
                           const LogoutModal = document.getElementById(
-                            LOGOUT_MODAL_ID
+                            LOGOUT_MODAL_ID,
                           ) as HTMLDialogElement;
                           LogoutModal.showModal();
                         }}
@@ -201,14 +205,14 @@ const Header = () => {
                   </Link>
                 </div>
               </>
-            )} */}
+            )}
           </div>
         </div>
       </header>
       <LogoutModal
         onConfirmation={() => {
           setIsUserActionVisible(false);
-          // authClient.signOut();
+          supabase.auth.signOut();
         }}
         onCancellation={() => setIsUserActionVisible(false)}
       />

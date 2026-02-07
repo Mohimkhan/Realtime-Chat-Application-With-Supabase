@@ -1,23 +1,34 @@
-"use client";
-
-import { supabase } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { MessageSquareIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
-  const [email, setEmail] = useState<string>("");
-
-  useEffect(() => {
-    const newView = async () => {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (data?.user) {
-        setEmail(data.user.email!);
-      }
-
-      console.log({ email: data?.user?.email, error });
-    };
-    newView();
-  }, []);
-
-  return <div>Your Next Template {email}</div>;
+  return (
+    <div className="flex-1">
+      <Empty className="border-[1px] border-white/50 border-dashed">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <MessageSquareIcon className="size-10" />
+          </EmptyMedia>
+          <EmptyTitle>No Chat Rooms Yet</EmptyTitle>
+          <EmptyDescription>
+            Create a new chat room to get started
+          </EmptyDescription>
+          <EmptyContent>
+            <Button asChild>
+              <Link href="rooms/new">Create Room</Link>
+            </Button>
+          </EmptyContent>
+        </EmptyHeader>
+      </Empty>
+    </div>
+  );
 }

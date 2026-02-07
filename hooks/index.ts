@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext, ReactNode } from "react";
 import { AuthContext } from "../contexts";
 import { createPortal } from "react-dom";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase/client";
 
 interface PortalProps {
   children: ReactNode;
@@ -8,7 +10,7 @@ interface PortalProps {
 
 export const useLocalStorage = <T>(
   key: string = "value",
-  initialValue: T = [] as T
+  initialValue: T = [] as T,
 ) => {
   // utility to check if a value can be parsed as JSON
   const isJsonParsable = (value: string): boolean => {
@@ -29,7 +31,7 @@ export const useLocalStorage = <T>(
       ? isJsonParsable(storedValue)
         ? JSON.parse(storedValue)
         : storedValue
-      : initialValue
+      : initialValue,
   );
 
   // update the localStorage whenever the value changes
@@ -37,7 +39,7 @@ export const useLocalStorage = <T>(
     if (isClient) {
       localStorage.setItem(
         key,
-        typeof value === "object" ? JSON.stringify(value) : value
+        typeof value === "object" ? JSON.stringify(value) : value,
       );
     }
   }, [key, value, isClient]);
@@ -71,11 +73,12 @@ export const useDebounce = <T>(value: T, delay: number = 500): T => {
 };
 
 export const usePortal = (domNode?: HTMLElement | null) => {
-  const portalRoot = domNode || document.getElementById("portal-root") as HTMLElement;
+  const portalRoot =
+    domNode || (document.getElementById("portal-root") as HTMLElement);
 
   if (!portalRoot) {
     throw new Error(
-      "Portal root element not found. Ensure it exists in your HTML."
+      "Portal root element not found. Ensure it exists in your HTML.",
     );
   }
 
@@ -85,4 +88,40 @@ export const usePortal = (domNode?: HTMLElement | null) => {
   };
 
   return { Portal };
+};
+
+export const useCurrentUser = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error && error?.message) {
+        setError(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      setUser(user);
+      setIsLoading(false);
+    };
+
+    getUser();
+
+    const { data } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  return { user, isLoading, error };
 };

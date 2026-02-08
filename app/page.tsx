@@ -24,7 +24,7 @@ export default function Home() {
           </EmptyDescription>
           <EmptyContent>
             <Button asChild>
-              <Link href="rooms/new">Create Room</Link>
+              <Link href="/rooms/new">Create Room</Link>
             </Button>
           </EmptyContent>
         </EmptyHeader>

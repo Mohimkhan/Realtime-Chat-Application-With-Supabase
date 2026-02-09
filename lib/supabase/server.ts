@@ -27,3 +27,17 @@ export async function createServerSupabaseClient() {
     },
   );
 }
+
+export async function createServerSupabaseAdminClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+      },
+    },
+  );
+}

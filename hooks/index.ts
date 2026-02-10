@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, ReactNode } from "react";
 import { AuthContext } from "../contexts";
 import { createPortal } from "react-dom";
 import { User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/client";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 interface PortalProps {
   children: ReactNode;
@@ -94,6 +94,7 @@ export const useCurrentUser = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const supabase = createBrowserSupabaseClient;
 
   useEffect(() => {
     const getUser = async () => {

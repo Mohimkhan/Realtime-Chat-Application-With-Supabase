@@ -7,7 +7,7 @@ import LogoutModal from "../modals/LogoutModal";
 import { ThemeBtn } from "./ThemeBtn";
 import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks";
-import { supabase } from "@/lib/supabase/client";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
@@ -211,10 +211,21 @@ const Header = () => {
       </header>
       <LogoutModal
         onConfirmation={() => {
+          const supabase = createBrowserSupabaseClient;
           setIsUserActionVisible(false);
+          const dialog = document.getElementById(
+            LOGOUT_MODAL_ID,
+          ) as HTMLDialogElement;
+          dialog.close();
           supabase.auth.signOut();
         }}
-        onCancellation={() => setIsUserActionVisible(false)}
+        onCancellation={() => {
+          setIsUserActionVisible(false);
+          const dialog = document.getElementById(
+            LOGOUT_MODAL_ID,
+          ) as HTMLDialogElement;
+          dialog.close();
+        }}
       />
     </>
   );

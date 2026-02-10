@@ -1,12 +1,13 @@
 "use client";
 
-import { supabase } from "@/lib/supabase/client";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Login() {
   const [loading, setLoading] = useState<boolean>(false);
+  const supabase = createBrowserSupabaseClient;
 
   const handleLogin = async () => {
     setLoading(true);

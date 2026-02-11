@@ -31,6 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      className="scroll-smooth overflow-hidden"
       suppressHydrationWarning
     >
       <body
@@ -46,7 +47,7 @@ export default function RootLayout({
           <div className="container mx-auto px-[10px] sm:px-0">
             <Header />
             <CustomToastContainer />
-            <main className="w-full flex flex-col min-h-[85dvh]">
+            <main className="w-full flex flex-col h-[calc(100dvh-150px)]">
               {children}
             </main>
             <Footer />

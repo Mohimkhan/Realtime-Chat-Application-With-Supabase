@@ -97,7 +97,7 @@ function RoomCard({
               asChild
               size="sm"
             >
-              <Link href={`/room/${id}`}>Enter Room</Link>
+              <Link href={`/rooms/${id}`}>Enter Room</Link>
             </Button>
             <LeaveRoomButton
               roomId={id}
@@ -143,7 +143,7 @@ function RoomList({
 
       <div
         style={{ scrollbarWidth: "thin" }}
-        className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] max-h-[300px] overflow-y-auto snap-y snap-proximity snap-always overflow-x-hidden"
+        className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(250px,1fr))] max-h-[300px] overflow-y-auto snap-y snap-proximity snap-always overflow-x-hidden"
       >
         {rooms.map((room) => (
           <RoomCard

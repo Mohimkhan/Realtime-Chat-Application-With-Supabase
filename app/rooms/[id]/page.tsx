@@ -19,19 +19,41 @@ const getRoom = async (id: string) => {
     .single();
 
   if (error) {
-    console.log(error);
     throw new Error("Failed to fetched room");
   }
 
   return room;
 };
 
+const getUser = async () => {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const supabase = await createServerSupabaseAdminClient();
+
+  const { data: userData, error } = await supabase
+    .from("user_profiles")
+    .select("id, name, image_url")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    throw new Error("Failed to fetched user");
+  }
+
+  return userData;
+};
+
+
 export default async function RoomPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  const room = await getRoom(id);
+  const [room, user] = await Promise.all([getRoom(id), getUser()]);
 
   if (!room) {
     redirect("/");
@@ -39,7 +61,9 @@ export default async function RoomPage({
 
   return (
     <div>
-      <h1>Room Page {room.name}</h1>
+      <h1>
+        Room Page {room.name} {user.name}
+      </h1>
     </div>
   );
 }

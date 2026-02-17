@@ -37,7 +37,7 @@ export default function RoomClient({
   return (
     <div className="flex-1">
       <div>
-        <Card className="flex justify-between items-center px-4">
+        <Card className="mt-5 flex justify-between items-center px-4">
           <CardHeader>
             <CardTitle>{room.name}</CardTitle>
             <CardDescription>0 users online</CardDescription>
@@ -51,7 +51,7 @@ export default function RoomClient({
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
         }}
-        className="h-[calc(100%-100px)] flex flex-col-reverse overflow-y-auto"
+        className="h-[calc(100%-170px)] flex flex-col-reverse overflow-y-auto"
       >
         <div>
           {messages.map((message) => (

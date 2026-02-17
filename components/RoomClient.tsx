@@ -1,14 +1,9 @@
 "use client";
 
+import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 function InviteUserModal() {
   return <Button>Invite User</Button>;
@@ -56,15 +51,18 @@ export default function RoomClient({
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
         }}
-        className="flex flex-col-reverse overflow-y-auto"
+        className="h-[calc(100%-100px)] flex flex-col-reverse overflow-y-auto"
       >
-        {messages.map((message) => (
-          <ChatMessage
-            key={message.id}
-            {...message}
-          />
-        ))}
+        <div>
+          {messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              {...message}
+            />
+          ))}
+        </div>
       </div>
+      <ChatInput roomId={room.id} />
     </div>
   );
 }

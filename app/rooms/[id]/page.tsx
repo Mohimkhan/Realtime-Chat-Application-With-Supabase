@@ -70,7 +70,14 @@ const getMessages = async (roomId: string) => {
     return [];
   }
 
-  return messages;
+  return messages.map((message) => {
+    return {
+      ...message,
+      author: Array.isArray(message.author)
+        ? message.author[0]
+        : message.author,
+    };
+  });
 };
 
 export default async function RoomPage({

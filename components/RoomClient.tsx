@@ -1,5 +1,6 @@
 "use client";
 
+import { Message } from "@/app/actions/message";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 import { Button } from "./ui/button";
@@ -23,16 +24,7 @@ export default function RoomClient({
     name: string;
     image_url: string;
   };
-  messages: {
-    id: string;
-    text: string;
-    created_at: string;
-    author_id: string;
-    author: {
-      name: string;
-      image_url: string;
-    }[];
-  }[];
+  messages: Message[];
 }) {
   return (
     <div className="flex-1">

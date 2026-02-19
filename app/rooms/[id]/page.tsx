@@ -63,7 +63,7 @@ const getMessages = async (roomId: string) => {
       "id, text, created_at, author_id, author:user_profiles(name, image_url)",
     )
     .eq("chat_room_id", roomId)
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: true })
     .limit(100);
 
   if (error) {

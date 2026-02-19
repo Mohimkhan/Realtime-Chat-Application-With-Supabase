@@ -76,6 +76,7 @@ export default function RoomClient({
               {messages.map((message) => (
                 <ChatMessage
                   key={message.id}
+                  currentUserId={user.id}
                   {...message}
                 />
               ))}

@@ -3,11 +3,20 @@
 import { Message } from "@/app/actions/message";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
-import { Button } from "./ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { formatCustomDate, groupBy } from "@/lib/utils";
+import { ActionButton } from "./ui/action-button";
 
 function InviteUserModal() {
-  return <Button>Invite User</Button>;
+  return (
+    <ActionButton
+      requireAreYouSure={true}
+      areYouSureDescription="Are you sure you want to invite friends?"
+      action={async () => ({ error: false, message: "" })}
+    >
+      Invite User
+    </ActionButton>
+  );
 }
 
 export default function RoomClient({
@@ -46,11 +55,31 @@ export default function RoomClient({
         className="h-[calc(100%-170px)] flex flex-col-reverse overflow-y-auto"
       >
         <div>
-          {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              {...message}
-            />
+          {Object.entries(
+            groupBy(
+              messages.map((message) => {
+                return {
+                  ...message,
+                  formattedDate: formatCustomDate(new Date(message.created_at))
+                    .date,
+                };
+              }),
+              "formattedDate",
+            ),
+          ).map(([date, messages]) => (
+            <div className="mb-4">
+              <div className="flex justify-center">
+                <span className="py-1 px-2 text-black dark:text-white border-[1px] dark:border-white/50 border-black rounded-sm">
+                  {formatCustomDate(new Date(date)).date}
+                </span>
+              </div>
+              {messages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  {...message}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>

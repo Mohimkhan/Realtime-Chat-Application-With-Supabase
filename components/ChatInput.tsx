@@ -11,9 +11,6 @@ import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { sendMessage } from "@/app/actions/message";
 
-/*
- * TODO[FEAT]: IF text is too long then the input area expands and it's not looking good, So make some change to make it good
- */
 
 export function ChatInput({ roomId }: { roomId: string }) {
   const [message, setMessage] = useState<string>("");
@@ -34,7 +31,7 @@ export function ChatInput({ roomId }: { roomId: string }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <InputGroup>
+      <InputGroup className="container !bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
         <InputGroupTextarea
           placeholder="Type your message..."
           className="min-h-auto"

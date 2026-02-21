@@ -52,7 +52,7 @@ export default function RoomClient({
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
         }}
-        className="h-[calc(100%-170px)] flex flex-col-reverse overflow-y-auto"
+        className="h-[calc(100%-175px)] flex flex-col-reverse overflow-y-auto"
       >
         <div>
           {Object.entries(

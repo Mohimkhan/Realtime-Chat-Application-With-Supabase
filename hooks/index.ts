@@ -3,6 +3,7 @@ import { AuthContext } from "../contexts";
 import { createPortal } from "react-dom";
 import { User } from "@supabase/supabase-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { Message } from "@/app/actions/message";
 
 interface PortalProps {
   children: ReactNode;
@@ -125,4 +126,46 @@ export const useCurrentUser = () => {
   }, []);
 
   return { user, isLoading, error };
+};
+
+export const useRealTimeChat = ({
+  roomId,
+  userId,
+}: {
+  roomId: string;
+  userId: string;
+}) => {
+  const [connectedUsers, setConnectedUsers] = useState<number>(1);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient;
+
+    const channel = supabase.channel(`room:${roomId}:messages`, {
+      config: {
+        private: true,
+        presence: {
+          key: userId,
+        },
+      },
+    });
+
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const { state } = channel.presenceState();
+        setConnectedUsers(Object.keys(state).length);
+      })
+      .subscribe((status) => {
+        if (status !== "SUBSCRIBED") return;
+
+        channel.track({ userId });
+      });
+
+    return () => {
+      channel.untrack();
+      channel.unsubscribe();
+    };
+  }, [roomId, userId]);
+
+  return { connectedUsers, messages };
 };

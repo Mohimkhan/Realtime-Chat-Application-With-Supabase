@@ -6,6 +6,7 @@ import { ChatMessage } from "./ChatMessage";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { formatCustomDate, groupBy } from "@/lib/utils";
 import { ActionButton } from "./ui/action-button";
+import { useRealTimeChat } from "@/hooks";
 
 function InviteUserModal() {
   return (
@@ -35,13 +36,20 @@ export default function RoomClient({
   };
   messages: Message[];
 }) {
+  const { connectedUsers } = useRealTimeChat({
+    roomId: room.id,
+    userId: user.id,
+  });
+
   return (
     <div className="flex-1">
       <div>
         <Card className="mt-5 flex justify-between items-center px-4">
           <CardHeader>
             <CardTitle>{room.name}</CardTitle>
-            <CardDescription>0 users online</CardDescription>
+            <CardDescription>
+              {connectedUsers} {connectedUsers === 1 ? "user" : "users"} online
+            </CardDescription>
           </CardHeader>
           <InviteUserModal />
         </Card>
@@ -52,7 +60,7 @@ export default function RoomClient({
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
         }}
-        className="h-[calc(100%-175px)] flex flex-col-reverse overflow-y-auto"
+        className="h-[calc(100%-175px)] flex flex-col-reverse overflow-y-auto px-3"
       >
         <div>
           {Object.entries(

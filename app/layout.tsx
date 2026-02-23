@@ -6,6 +6,7 @@ import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import CustomToastContainer from "@/components/CustomToastContainer";
+import { appName } from "@/constants";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,6 +42,7 @@ export default function RootLayout({
         <NextThemesProvider
           attribute="class"
           defaultTheme="system"
+          storageKey={`${appName}-theme`}
           enableSystem
           disableTransitionOnChange
         >

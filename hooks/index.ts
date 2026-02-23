@@ -152,8 +152,8 @@ export const useRealTimeChat = ({
 
     channel
       .on("presence", { event: "sync" }, () => {
-        const { state } = channel.presenceState();
-        setConnectedUsers(Object.keys(state).length);
+        const state = channel.presenceState();
+        setConnectedUsers(Object?.keys(state)?.length || 1);
       })
       .subscribe((status) => {
         if (status !== "SUBSCRIBED") return;

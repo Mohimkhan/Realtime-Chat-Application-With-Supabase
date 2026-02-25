@@ -155,19 +155,22 @@ export const useRealTimeChat = ({
         const state = channel.presenceState();
         setConnectedUsers(Object?.keys(state)?.length || 1);
       })
-      .on("broadcast", {event: "INSERT"}, (payload: any) => {
+      .on("broadcast", { event: "INSERT" }, (payload: any) => {
         const record = payload.payload.record;
 
-        setMessages((prevMessages) => [...prevMessages, {
-          id: record.id,
-          text: record.text,
-          created_at: record.created_at,
-          author_id: record.author_id,
-          author: {
-            name: record.author_name,
-            avatar_url: record.author_avatar_url,
-          }
-        }]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: record.id,
+            text: record.text,
+            created_at: record.created_at,
+            author_id: record.author_id,
+            author: {
+              name: record.author_name,
+              avatar_url: record.author_avatar_url,
+            },
+          },
+        ]);
       })
       .subscribe((status) => {
         if (status !== "SUBSCRIBED") return;

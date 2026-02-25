@@ -167,7 +167,7 @@ export const useRealTimeChat = ({
             author_id: record.author_id,
             author: {
               name: record.author_name,
-              avatar_url: record.author_avatar_url,
+              image_url: record.author_image_url,
             },
           },
         ]);

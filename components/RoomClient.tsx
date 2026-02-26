@@ -60,7 +60,7 @@ export default function RoomClient({
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
         }}
-        className="h-[calc(100%-175px)] flex flex-col-reverse overflow-y-auto px-3"
+        className="pt-4 h-[calc(100vh-315px)] flex flex-col-reverse overflow-y-auto px-3"
       >
         <div>
           {Object.entries(
@@ -76,7 +76,7 @@ export default function RoomClient({
             ),
           ).map(([date, messages]) => (
             <div className="mb-4">
-              <div className="flex justify-center">
+              <div className="flex justify-center mb-6">
                 <span className="py-1 px-2 text-black dark:text-white border-[1px] dark:border-white/50 border-black rounded-sm">
                   {formatCustomDate(new Date(date)).date}
                 </span>

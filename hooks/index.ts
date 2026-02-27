@@ -156,7 +156,7 @@ export const useRealTimeChat = ({
         setConnectedUsers(Object?.keys(state)?.length || 1);
       })
       .on("broadcast", { event: "INSERT" }, (payload: any) => {
-        const record = payload.payload.record;
+        const record = payload.payload.payload.record;
 
         setMessages((prevMessages) => [
           ...prevMessages,

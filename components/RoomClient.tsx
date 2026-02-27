@@ -36,7 +36,7 @@ export default function RoomClient({
   };
   messages: Message[];
 }) {
-  const { connectedUsers } = useRealTimeChat({
+  const { connectedUsers, messages: realtimeMessages } = useRealTimeChat({
     roomId: room.id,
     userId: user.id,
   });
@@ -65,7 +65,7 @@ export default function RoomClient({
         <div>
           {Object.entries(
             groupBy(
-              messages.map((message) => {
+              messages.concat(realtimeMessages).map((message) => {
                 return {
                   ...message,
                   formattedDate: formatCustomDate(new Date(message.created_at))

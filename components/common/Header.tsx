@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { AnimatedTooltip } from "../ui/animated-tooltip";
 import { useState } from "react";
-import { appName, LOGOUT_MODAL_ID } from "@/constants";
+import { appName } from "@/constants";
 import LogoutModal from "../modals/LogoutModal";
 import { ThemeBtn } from "./ThemeBtn";
 import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
@@ -91,18 +91,15 @@ const Header = () => {
                 <div className="text-xs dark:text-[#e6eef7] text-[#1e293b]">
                   <LogOut size={20} />
                 </div>
-                <button
-                  type="button"
-                  className="group-hover:text-primary-color"
-                  onClick={() => {
-                    const LogoutModal = document.getElementById(
-                      LOGOUT_MODAL_ID,
-                    ) as HTMLDialogElement;
-                    LogoutModal.showModal();
+                <LogoutModal
+                  className="py-0 -mt-1 dark:!text-[#d7dfe8] !text-[#1e293b] font-normal bg-transparent hover:bg-transparent shadow-none border-none justify-start pl-3 dark:hover:!text-primary-color"
+                  onConfirmation={() => {
+                    const supabase = createBrowserSupabaseClient;
+                    supabase.auth.signOut();
+                    setIsUserActionVisible(false);
                   }}
-                >
-                  Logout
-                </button>
+                  onCancel={() => setIsUserActionVisible(false)}
+                ></LogoutModal>
               </li>
             </ul>
           </div>
@@ -173,22 +170,20 @@ const Header = () => {
                         <span className="badge">New</span>
                       </Link>
                     </li>
-                    <li className="dark:hover:text-primary-color hover:scale-105">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const LogoutModal = document.getElementById(
-                            LOGOUT_MODAL_ID,
-                          ) as HTMLDialogElement;
-                          LogoutModal.showModal();
+                    <li className="hover:scale-105">
+                      <LogoutModal
+                        className="py-0 dark:!text-[#d7dfe8] !text-[#1e293b] font-normal bg-transparent hover:bg-transparent shadow-none border-none justify-start pl-3 dark:hover:!text-primary-color"
+                        onConfirmation={() => {
+                          const supabase = createBrowserSupabaseClient;
+                          supabase.auth.signOut();
+                          setIsUserActionVisible(false);
                         }}
-                      >
-                        Logout
-                      </button>
+                        onCancel={() => setIsUserActionVisible(false)}
+                      ></LogoutModal>
                     </li>
                     <li>
                       <span
-                        className="bg-black/60 text-xs ml-auto text-white hover:scale-x-110 hover:bg-black/60 hover:dark:bg-black/80"
+                        className="bg-black/60 mt-2 text-xs ml-auto text-white hover:scale-x-110 hover:bg-black/60 hover:dark:bg-black/80"
                         onClick={() => setIsUserActionVisible(false)}
                       >
                         close
@@ -209,24 +204,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-      <LogoutModal
-        onConfirmation={() => {
-          const supabase = createBrowserSupabaseClient;
-          setIsUserActionVisible(false);
-          const dialog = document.getElementById(
-            LOGOUT_MODAL_ID,
-          ) as HTMLDialogElement;
-          dialog.close();
-          supabase.auth.signOut();
-        }}
-        onCancellation={() => {
-          setIsUserActionVisible(false);
-          const dialog = document.getElementById(
-            LOGOUT_MODAL_ID,
-          ) as HTMLDialogElement;
-          dialog.close();
-        }}
-      />
     </>
   );
 };

@@ -13,7 +13,7 @@ A modern, high-performance realtime chat application built with **Next.js 14**, 
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Validation**: [Zod](https://zod.dev/) & [React Hook Form](https://react-hook-form.com/)
-- **Notifications**: [Sonner](https://sonner.emilkowal.ski/) & [React Toastify](https://fkhadra.github.io/react-toastify/)
+- **Notifications**: [React Toastify](https://fkhadra.github.io/react-toastify/)
 
 ---
 
@@ -44,9 +44,9 @@ A modern, high-performance realtime chat application built with **Next.js 14**, 
 ├── hooks/              # Custom React hooks
 ├── lib/                # Utility functions and Supabase clients
 │   ├── schemas/        # Zod validation schemas
-│   ├── supabase/       # Supabase client configurations
+│   ├── supabase/       # Supabase client/server configurations
 │   └── utils/          # Helper functions
-├── public/             # Static assets (images, fonts)
+├── public/             # Static assets (images, icons)
 ├── supabase/           # Supabase migrations and configurations
 └── types/              # TypeScript type definitions
 ```

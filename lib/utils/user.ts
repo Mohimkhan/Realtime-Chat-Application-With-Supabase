@@ -13,9 +13,9 @@ export const getCurrentUser = cache(async () => {
 
 export const getRandomUserProfileImg = () => {
   const profileImages = [
-    "/profile/user/1",
-    "/profile/user/2",
-    "/profile/user/3",
+    "/profile/user-1.jpg",
+    "/profile/user-2.webp",
+    "/profile/user-3.jpg",
   ];
   const randomIndex = Math.floor(Math.random() * profileImages.length);
 

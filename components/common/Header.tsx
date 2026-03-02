@@ -146,7 +146,7 @@ const Header = () => {
                       ),
                       image:
                         user?.user_metadata?.avatar_url ||
-                        "/avatar/skeleton_6.jpg",
+                        "/profile/user-1.jpg",
                       name: user.user_metadata?.name.slice(
                         0,
                         user.user_metadata?.name.indexOf(" "),

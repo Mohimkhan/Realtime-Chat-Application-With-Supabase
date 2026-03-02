@@ -143,7 +143,7 @@ function RoomList({
 
       <div
         style={{ scrollbarWidth: "thin" }}
-        className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(250px,1fr))] max-h-[300px] overflow-y-auto snap-y snap-proximity snap-always overflow-x-hidden"
+        className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(250px,1fr))] max-h-[312px] overflow-y-auto snap-y snap-proximity snap-always overflow-x-hidden"
       >
         {rooms.map((room) => (
           <RoomCard

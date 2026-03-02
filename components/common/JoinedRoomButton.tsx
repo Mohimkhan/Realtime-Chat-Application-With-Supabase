@@ -38,7 +38,7 @@ export function JoinedRoomButton({
     toast.success("Room joined successfully");
 
     router.refresh();
-    router.push(`/room/${roomId}`);
+    router.push(`/rooms/${roomId}`);
 
     return { error: false, message: "Room joined successfully" };
   };

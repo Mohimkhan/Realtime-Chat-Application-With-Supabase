@@ -47,5 +47,5 @@ export async function createRoom(data: z.infer<typeof createRoomSchema>) {
     return { error: true, message: "Failed to enter room as member" };
   }
 
-  redirect(`/room/${room.id}`);
+  redirect(`/rooms/${room.id}`);
 }

@@ -61,10 +61,7 @@ export default function Register() {
           },
         },
       });
-
-      toast.success("Login with Google successful");
     } catch (error) {
-      console.log("error", error);
       toast.error("Failed to login with Google");
     } finally {
       setLoading(false);
@@ -82,7 +79,7 @@ export default function Register() {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             name: formData.name,
-            image_url: getRandomUserProfileImg(),
+            avatar_url: getRandomUserProfileImg(),
           },
         },
       });
@@ -91,7 +88,6 @@ export default function Register() {
       await wait(1000);
       router.push("/");
     } catch (error) {
-      console.log("error", error);
       toast.error("Failed to register");
     }
   };
@@ -260,6 +256,7 @@ export default function Register() {
               alt="Google"
               width={20}
               height={20}
+              className="w-5 h-auto"
             />
             Google
           </Button>

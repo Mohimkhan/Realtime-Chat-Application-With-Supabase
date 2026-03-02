@@ -22,6 +22,9 @@ import { registerSchema } from "@/lib/schemas";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { LoadingSwap } from "@/components/ui/loading-swap";
+import { getRandomUserProfileImg } from "@/lib/utils/user";
+import { useRouter } from "next/navigation";
+import { wait } from "@/lib/utils";
 
 export default function Register() {
   const supabase = createBrowserSupabaseClient;
@@ -29,6 +32,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const router = useRouter();
   const {
     handleSubmit,
     control,
@@ -47,7 +51,7 @@ export default function Register() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -57,6 +61,8 @@ export default function Register() {
           },
         },
       });
+
+      toast.success("Login with Google successful");
     } catch (error) {
       console.log("error", error);
       toast.error("Failed to login with Google");
@@ -76,10 +82,16 @@ export default function Register() {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             name: formData.name,
+            image_url: getRandomUserProfileImg(),
           },
         },
       });
+
+      toast.success("Registration successful");
+      await wait(1000);
+      router.push("/");
     } catch (error) {
+      console.log("error", error);
       toast.error("Failed to register");
     }
   };
@@ -219,6 +231,7 @@ export default function Register() {
             />
             <Button
               type="submit"
+              disabled={isSubmitting || loading}
               className="w-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
             >
               <LoadingSwap isLoading={isSubmitting}>Register</LoadingSwap>

@@ -54,3 +54,6 @@ export const groupBy = <T, K extends keyof T>(
     {} as Record<string, T[]>,
   );
 };
+
+export const wait = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

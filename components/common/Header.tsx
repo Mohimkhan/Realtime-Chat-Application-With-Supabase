@@ -8,6 +8,7 @@ import { ThemeBtn } from "./ThemeBtn";
 import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { motion } from "framer-motion";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
@@ -15,7 +16,12 @@ const Header = () => {
 
   return (
     <>
-      <header className="navbar p-0 pt-10">
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="navbar p-0 pt-10"
+      >
         <div className="dark:text-[#e6eef7] text-[#1e293b] sm:hidden block">
           <div className="dropdown">
             <div
@@ -203,7 +209,7 @@ const Header = () => {
             )}
           </div>
         </div>
-      </header>
+      </motion.header>
     </>
   );
 };

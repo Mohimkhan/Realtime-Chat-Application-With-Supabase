@@ -1,9 +1,12 @@
 import Hero from "@/components/home/Hero";
+import { getCurrentUser } from "@/lib/utils/user";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+
   return (
     <div className="flex-1 flex flex-col">
-      <Hero />
+      <Hero user={user}/>
     </div>
   );
 }

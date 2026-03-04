@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
+import { User } from "@supabase/supabase-js";
 
 const TiltCard = ({
   children,
@@ -57,7 +58,7 @@ const TiltCard = ({
   );
 };
 
-export default function Hero() {
+export default function Hero({ user }: { user: User | null }) {
   return (
     <section className="flex-1 flex flex-col items-center justify-center text-center overflow-hidden py-2 mt-16 md:py-4">
       <div className="container px-4 md:px-6 relative z-10 flex flex-col items-center gap-11 sm:gap-0 justify-center h-full max-h-full">
@@ -96,7 +97,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link href="/rooms">
+            <Link href={user?.id ? "/rooms" : "/register"}>
               <Button
                 size="lg"
                 className="rounded-full px-8 h-10 md:h-11 text-sm md:text-base font-medium shadow-lg hover:shadow-primary/25 transition-all"

@@ -86,7 +86,7 @@ export default function Register() {
 
       toast.success("Registration successful");
       await wait(1000);
-      router.push("/");
+      router.push("/rooms");
     } catch (error) {
       toast.error("Failed to register");
     }

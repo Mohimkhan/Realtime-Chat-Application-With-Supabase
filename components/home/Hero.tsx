@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { User } from "@supabase/supabase-js";
+import { appName } from "@/constants";
 
 const TiltCard = ({
   children,
@@ -88,7 +89,7 @@ export default function Hero({ user }: { user: User | null }) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mx-auto max-w-[550px] text-neutral-500 text-sm md:text-base dark:text-neutral-400"
           >
-            Experience seamless, realtime communication with RapidChat. Connect
+            Experience seamless, realtime communication with {appName}. Connect
             and share moments across the globe in a premium interface.
           </motion.p>
           <motion.div

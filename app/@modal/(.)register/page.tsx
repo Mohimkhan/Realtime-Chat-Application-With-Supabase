@@ -43,7 +43,7 @@ export default function RegisterModalPage() {
       password: "",
       confirmPassword: "",
     },
-    mode: "onTouched",
+    mode: "onSubmit",
     resolver: zodResolver(registerSchema),
   });
 

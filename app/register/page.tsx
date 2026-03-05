@@ -23,7 +23,7 @@ import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { getRandomUserProfileImg } from "@/lib/utils/user";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { wait } from "@/lib/utils";
 
 export default function Register() {
@@ -32,7 +32,6 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
-  const router = useRouter();
   const {
     handleSubmit,
     control,
@@ -72,7 +71,7 @@ export default function Register() {
     formData: z.infer<typeof registerSchema>,
   ) => {
     try {
-      await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.confirmPassword,
         options: {
@@ -84,9 +83,14 @@ export default function Register() {
         },
       });
 
+      if (error) {
+        toast.error("Failed to register");
+        return;
+      }
+
       toast.success("Registration successful");
       await wait(1000);
-      router.push("/rooms");
+      redirect("/rooms");
     } catch (error) {
       toast.error("Failed to register");
     }

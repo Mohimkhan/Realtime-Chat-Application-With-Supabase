@@ -32,6 +32,7 @@ export default function RegisterModalPage() {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState<boolean>(true);
   const {
     handleSubmit,
     control,
@@ -84,7 +85,7 @@ export default function RegisterModalPage() {
       });
 
       toast.success("Registration successful");
-      await wait(1000);
+      setIsOpen(false);
       router.push("/rooms");
     } catch (error) {
       toast.error("Failed to register");
@@ -93,8 +94,11 @@ export default function RegisterModalPage() {
 
   return (
     <Dialog
-      defaultOpen={true}
-      onOpenChange={(open) => !open && router.back()}
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) router.back();
+      }}
     >
       <DialogContent className="w-[calc(100%-3rem)]  sm:max-w-[450px] p-6 gap-6 rounded-lg">
         <DialogHeader>

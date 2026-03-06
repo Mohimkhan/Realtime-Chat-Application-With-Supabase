@@ -9,10 +9,12 @@ import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
   const { user } = useCurrentUser();
+  const router = useRouter();
 
   return (
     <>
@@ -46,7 +48,7 @@ const Header = () => {
             </div>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow dark:bg-base-100 bg-[#e6eef7] rounded-box w-52"
+              className="menu menu-sm dropdown-content mt-3 z-[1000] p-2 shadow dark:bg-base-100 bg-[#e6eef7] rounded-box w-52"
             >
               <li className="flex justify-start items-center flex-row -gap-3 group">
                 <div className="text-xs dark:text-[#e6eef7] text-[#1e293b]">
@@ -103,6 +105,7 @@ const Header = () => {
                     const supabase = createBrowserSupabaseClient;
                     supabase.auth.signOut();
                     setIsUserActionVisible(false);
+                    router.push("/");
                   }}
                   onCancel={() => setIsUserActionVisible(false)}
                 ></LogoutModal>
@@ -183,6 +186,7 @@ const Header = () => {
                           const supabase = createBrowserSupabaseClient;
                           supabase.auth.signOut();
                           setIsUserActionVisible(false);
+                          router.push("/");
                         }}
                         onCancel={() => setIsUserActionVisible(false)}
                       ></LogoutModal>
@@ -201,7 +205,7 @@ const Header = () => {
             ) : (
               <>
                 <div className="text-xl dark:text-[#e6eef7] text-[#1e293b] hover:scale-110">
-                  <Link href="/login">
+                  <Link href="/register">
                     <User />
                   </Link>
                 </div>

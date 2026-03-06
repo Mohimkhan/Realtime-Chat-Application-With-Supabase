@@ -98,7 +98,7 @@ export default function Hero({ user }: { user: User | null }) {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link href={user?.id ? "/rooms" : "/register"}>
+            <Link href={user?.id ? "/rooms" : "/login"}>
               <Button
                 size="lg"
                 className="rounded-full px-8 h-10 md:h-11 text-sm md:text-base font-medium shadow-lg hover:shadow-primary/25 transition-all"

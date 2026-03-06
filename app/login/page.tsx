@@ -22,13 +22,13 @@ import { loginSchema } from "@/lib/schemas";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { LoadingSwap } from "@/components/ui/loading-swap";
-import { redirect } from "next/navigation";
-import { wait } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const supabase = createBrowserSupabaseClient;
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
 
   const {
     handleSubmit,
@@ -65,6 +65,10 @@ export default function Login() {
   };
 
   const handleLogin = async (formData: z.infer<typeof loginSchema>) => {
+    const errorMessages = {
+      invalid_credentials: "Invalid email or password",
+    };
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -72,13 +76,15 @@ export default function Login() {
       });
 
       if (error) {
-        toast.error("Failed to login");
+        const message = error?.code
+          ? errorMessages[error.code as keyof typeof errorMessages]
+          : undefined;
+        toast.error(message || "Failed to login");
         return;
       }
 
       toast.success("Login successful");
-      await wait(1000);
-      redirect("/rooms");
+      router.push("/rooms");
     } catch (error: any) {
       toast.error("Failed to login");
     }

@@ -23,8 +23,7 @@ import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { getRandomUserProfileImg } from "@/lib/utils/user";
-import { redirect } from "next/navigation";
-import { wait } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const supabase = createBrowserSupabaseClient;
@@ -32,6 +31,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const router = useRouter();
   const {
     handleSubmit,
     control,
@@ -89,8 +89,7 @@ export default function Register() {
       }
 
       toast.success("Registration successful");
-      await wait(1000);
-      redirect("/rooms");
+      router.push("/rooms");
     } catch (error) {
       toast.error("Failed to register");
     }

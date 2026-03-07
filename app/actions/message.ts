@@ -8,6 +8,7 @@ export type Message = {
   text: string;
   created_at: string;
   author_id: string;
+  image_url?: string;
   author: {
     name: string;
     image_url: string;

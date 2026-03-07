@@ -165,6 +165,7 @@ export const useRealTimeChat = ({
             text: record.text,
             created_at: record.created_at,
             author_id: record.author_id,
+            image_url: record.image_url,
             author: {
               name: record.author_name,
               image_url: record.author_image_url,

@@ -192,12 +192,13 @@ const Header = () => {
                       ></LogoutModal>
                     </li>
                     <li>
-                      <span
+                      <button
+                        type="button"
                         className="bg-black/60 mt-2 text-xs ml-auto text-white hover:scale-x-110 hover:bg-black/60 hover:dark:bg-black/80"
                         onClick={() => setIsUserActionVisible(false)}
                       >
                         close
-                      </span>
+                      </button>
                     </li>
                   </ul>
                 )}

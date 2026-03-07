@@ -14,11 +14,16 @@ import { Button } from "@/components/ui/button";
 interface LogoutModalProps {
   className?: string;
   text?: string;
-  onConfirmation: () => void,
-  onCancel: () => void,
+  onConfirmation: () => void;
+  onCancel: () => void;
 }
 
-export default function LogoutModal({ className, text = "Logout", onConfirmation, onCancel }: LogoutModalProps) {
+export default function LogoutModal({
+  className,
+  text = "Logout",
+  onConfirmation,
+  onCancel,
+}: LogoutModalProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

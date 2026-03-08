@@ -36,10 +36,10 @@ export function ChatMessage({
       {image_url ? (
         <div>
           {text && (
-            <div className="text-sm text-white w-full flex bg-blue-700 rounded-md px-2 pt-1 pb-3 gap-1 flex-col items-end">
+            <div className="text-sm text-white w-full flex bg-blue-700 rounded-md px-2 pt-1 pb-3 gap-1 flex-col items-start">
               <span>{text}</span>
               <span className="text-sm text-gray-400 ml-auto text-nowrap">
-                -- {formatCustomDate(new Date(created_at)).time}
+                {formatCustomDate(new Date(created_at)).time}
               </span>
             </div>
           )}

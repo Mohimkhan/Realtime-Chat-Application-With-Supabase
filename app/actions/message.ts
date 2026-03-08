@@ -9,6 +9,7 @@ export type Message = {
   created_at: string;
   author_id: string;
   image_url?: string;
+  status?: "sending" | "error";
   author: {
     name: string;
     image_url: string;
@@ -18,6 +19,8 @@ export type Message = {
 export const sendMessage = async (
   text: string,
   roomId: string,
+  imageSrc?: string,
+  messageId?: string,
 ): Promise<
   { error: false; message: Message } | { error: true; message: string }
 > => {
@@ -47,11 +50,15 @@ export const sendMessage = async (
   const { data: messageData, error: messageError } = await supabase
     .from("messages")
     .insert({
+      id: messageId ?? undefined,
       chat_room_id: roomId,
       text,
       author_id: user?.id,
+      image_url: imageSrc ?? null,
     })
-    .select("id, text, created_at, author_id, author:user_profiles(*)")
+    .select(
+      "id, text, image_url, created_at, author_id, author:user_profiles(*)",
+    )
     .single();
 
   if (messageError) {
@@ -63,6 +70,11 @@ export const sendMessage = async (
 
   return {
     error: false,
-    message: { ...messageData, author: messageData.author[0] },
+    message: {
+      ...messageData,
+      author: Array.isArray(messageData.author)
+        ? messageData.author[0]
+        : messageData.author,
+    },
   };
 };

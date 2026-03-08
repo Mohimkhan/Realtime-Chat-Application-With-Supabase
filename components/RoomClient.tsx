@@ -36,7 +36,11 @@ export default function RoomClient({
   };
   messages: Message[];
 }) {
-  const { connectedUsers, messages: realtimeMessages } = useRealTimeChat({
+  const {
+    connectedUsers,
+    messages: realtimeMessages,
+    setMessages,
+  } = useRealTimeChat({
     roomId: room.id,
     userId: user.id,
   });
@@ -75,7 +79,10 @@ export default function RoomClient({
               "formattedDate",
             ),
           ).map(([date, messages]) => (
-            <div className="mb-4">
+            <div
+              className="mb-4"
+              key={date}
+            >
               <div className="flex justify-center mb-6">
                 <span className="py-1 px-2 text-black dark:text-white border-[1px] dark:border-white/50 border-black rounded-sm">
                   {formatCustomDate(new Date(date)).date}
@@ -92,7 +99,11 @@ export default function RoomClient({
           ))}
         </div>
       </div>
-      <ChatInput roomId={room.id} />
+      <ChatInput
+        roomId={room.id}
+        setMessages={setMessages}
+        user={user}
+      />
     </div>
   );
 }

@@ -158,20 +158,25 @@ export const useRealTimeChat = ({
       .on("broadcast", { event: "INSERT" }, (payload: any) => {
         const record = payload.payload.payload.record;
 
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: record.id,
-            text: record.text,
-            created_at: record.created_at,
-            author_id: record.author_id,
-            image_url: record.image_url,
-            author: {
-              name: record.author_name,
-              image_url: record.author_image_url,
+        setMessages((prevMessages) => {
+          if (prevMessages.some((msg) => msg.id === record.id)) {
+            return prevMessages;
+          }
+          return [
+            ...prevMessages,
+            {
+              id: record.id,
+              text: record.text,
+              created_at: record.created_at,
+              author_id: record.author_id,
+              image_url: record.image_url,
+              author: {
+                name: record.author_name,
+                image_url: record.author_image_url,
+              },
             },
-          },
-        ]);
+          ];
+        });
       })
       .subscribe((status) => {
         if (status !== "SUBSCRIBED") return;
@@ -185,5 +190,5 @@ export const useRealTimeChat = ({
     };
   }, [roomId, userId]);
 
-  return { connectedUsers, messages };
+  return { connectedUsers, messages, setMessages };
 };

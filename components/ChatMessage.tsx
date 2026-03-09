@@ -56,15 +56,18 @@ export function ChatMessage({
           className={`flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} ${status === "sending" ? "opacity-50" : ""}`}
         >
           <span className="text-sm font-bold">{author?.name ?? "Unknown"}</span>
-          <span className="text-sm text-black dark:text-white flex items-end gap-2 text-justify">
-            <span>
-              {text}{" "}
-              <span className="text-sm text-gray-500 text-nowrap">
-                {" "}
-                -- {formatCustomDate(new Date(created_at)).time}
+          <span
+            className={`text-sm text-black dark:text-white flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} gap-2 text-justify`}
+          >
+            <div className="flex">
+              <span>
+                {text}{" "}
+                <span className="text-sm text-gray-500 text-nowrap">
+                  -- {formatCustomDate(new Date(created_at)).time}
+                </span>
               </span>
-            </span>
-            {status === "error" && (
+            </div>
+            {status !== "error" && (
               <span className="text-red-500 text-xs italic">
                 Failed to send
               </span>

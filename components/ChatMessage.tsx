@@ -13,7 +13,7 @@ export function ChatMessage({
 }: Message & { currentUserId: string }) {
   return (
     <div
-      className={`flex ${image_url ? "mb-10" : "mb-3"} items-start gap-2 ${author_id === currentUserId ? "justify-start" : "justify-end"}`}
+      className={`flex ${image_url ? "mb-10" : "mb-5"} items-start gap-2 ${author_id === currentUserId ? "justify-start" : "justify-end"}`}
     >
       {author?.image_url != null ? (
         <Image
@@ -33,7 +33,13 @@ export function ChatMessage({
         </div>
       )}
 
-      {image_url ? (
+      {status === "image-uploading" ? (
+        <div
+          className={`w-60 h-60 flex justify-center items-center rounded-md border-[2px] dark:border-white/50 border-black object-cover ${text ? "-mt-2" : ""} animate-pulse `}
+        >
+          image loading
+        </div>
+      ) : image_url ? (
         <div>
           {text && (
             <div className="text-sm text-white w-full flex bg-blue-700 rounded-md px-2 pt-1 pb-3 gap-1 flex-col items-start">
@@ -43,13 +49,22 @@ export function ChatMessage({
               </span>
             </div>
           )}
-          <Image
-            src={image_url}
-            alt={author?.name ?? "Unknown"}
-            width={230}
-            height={230}
-            className={`w-60 h-auto rounded-md border-[2px] dark:border-white/50 border-black object-cover ${text ? "-mt-2" : ""} `}
-          />
+          <div
+            className={`flex flex-col gap-1 ${author_id === currentUserId ? "items-start" : "items-end"}`}
+          >
+            <Image
+              src={image_url}
+              alt={author?.name ?? "Unknown"}
+              width={230}
+              height={230}
+              className={`w-60 h-auto rounded-md border-[2px] dark:border-white/50 border-black object-cover ${text ? "-mt-2" : ""} `}
+            />
+            {!text && (
+              <span className="text-sm text-gray-400 text-nowrap">
+                {formatCustomDate(new Date(created_at)).time}
+              </span>
+            )}
+          </div>
         </div>
       ) : (
         <div
@@ -67,7 +82,7 @@ export function ChatMessage({
                 </span>
               </span>
             </div>
-            {status !== "error" && (
+            {status === "error" && (
               <span className="text-red-500 text-xs italic">
                 Failed to send
               </span>

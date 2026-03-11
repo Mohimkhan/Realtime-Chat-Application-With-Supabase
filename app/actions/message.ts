@@ -9,7 +9,7 @@ export type Message = {
   created_at: string;
   author_id: string;
   image_url?: string;
-  status?: "sending" | "error";
+  status?: "sending" | "error" | "image-uploading" | "image-error";
   author: {
     name: string;
     image_url: string;
@@ -30,10 +30,6 @@ export const sendMessage = async (
     return { error: true, message: "User not authenticated" };
   }
 
-  if (!text.trim()) {
-    return { error: true, message: "Message cannot be empty" };
-  }
-
   const supabase = await createServerSupabaseAdminClient();
 
   const { data: memberData, error: memberError } = await supabase
@@ -52,7 +48,7 @@ export const sendMessage = async (
     .insert({
       id: messageId ?? undefined,
       chat_room_id: roomId,
-      text,
+      text: text ?? null,
       author_id: user?.id,
       image_url: imageSrc ?? null,
     })

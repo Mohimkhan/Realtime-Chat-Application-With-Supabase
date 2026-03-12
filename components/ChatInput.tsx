@@ -7,7 +7,14 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "./ui/input-group";
-import { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Message, sendMessage } from "@/app/actions/message";
 import { Camera, X } from "lucide-react";
 import { toast } from "react-toastify";
@@ -29,6 +36,22 @@ export function ChatInput({
   const [message, setMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Adjust the textarea height with the content and scroll, for all browsers as firefox doesn't support field-sizing
+  useEffect(() => {
+    if (textAreaRef.current) {
+      if (message.length > 0) {
+        textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+        textAreaRef.current.style.overflowY = "scroll";
+        return;
+      }
+
+      textAreaRef.current.style.minHeight = "25px";
+      textAreaRef.current.style.height = "25px";
+      textAreaRef.current.style.overflowY = "hidden";
+    }
+  }, [message]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -147,10 +170,11 @@ export function ChatInput({
           )}
         </div>
         <InputGroupTextarea
+          ref={textAreaRef}
           placeholder="Type your message..."
-          className="min-h-[45px]"
+          className="py-0.5 min-h-[25px] h-[25px] max-h-[200px]"
           style={{
-            fieldSizing: "content",
+            scrollbarWidth: "thin",
           }}
           value={message}
           onChange={(e) => setMessage(e.target.value)}

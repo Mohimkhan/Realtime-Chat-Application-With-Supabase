@@ -110,6 +110,7 @@ function RoomCard({
         ) : (
           <JoinedRoomButton
             roomId={id}
+            disabled={memberCount >= 50}
             size="sm"
             variant="outline"
           >

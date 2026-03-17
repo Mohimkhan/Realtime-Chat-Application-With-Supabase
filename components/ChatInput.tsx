@@ -19,6 +19,8 @@ import { Message, sendMessage } from "@/app/actions/message";
 import { Camera, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { uploadImage } from "@/app/actions/upload";
+import Image from "next/image";
+import { Button } from "./ui/button";
 
 export function ChatInput({
   roomId,
@@ -142,18 +144,19 @@ export function ChatInput({
         <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
           {selectedFile ? (
             <div className="relative size-full flex items-center justify-center">
-              <img
+              <Image
                 src={URL.createObjectURL(selectedFile)}
                 alt="Selected"
                 className="size-full object-cover rounded-md"
+                fill
               />
-              <button
+              <Button
                 type="button"
-                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                className="absolute -top-1 -right-1 size-4 bg-red-500 text-white rounded-full p-0.5 hover:scale-125 hover:bg-red-500"
                 onClick={() => setSelectedFile(null)}
               >
-                <X size={12} />
-              </button>
+                <X size={10} />
+              </Button>
             </div>
           ) : (
             <>

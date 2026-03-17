@@ -58,7 +58,7 @@ export default function LoginModalPage() {
           },
         },
       });
-    } catch (error: any) {
+    } catch (_) {
       toast.error("Failed to login with Google");
     } finally {
       setLoading(false);
@@ -77,7 +77,6 @@ export default function LoginModalPage() {
       });
 
       if (error) {
-        console.log("error ", error);
         const message = error?.code
           ? errorMessages[error.code as keyof typeof errorMessages]
           : undefined;
@@ -88,8 +87,7 @@ export default function LoginModalPage() {
       toast.success("Login successful");
       setIsOpen(false);
       router.push("/rooms");
-    } catch (error: any) {
-      console.log("catch error ", error);
+    } catch (_) {
       toast.error("Failed to login");
     }
   };

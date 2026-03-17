@@ -43,8 +43,8 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
     });
 
     return { success: true, url: uploadResponse.secure_url };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Cloudinary upload error:", error);
-    return { success: false, error: error.message || "Failed to upload image" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to upload image" };
   }
 }

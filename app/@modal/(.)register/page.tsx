@@ -23,7 +23,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { getRandomUserProfileImg } from "@/lib/utils/user";
 import { useRouter } from "next/navigation";
-import { wait } from "@/lib/utils";
 
 export default function RegisterModalPage() {
   const supabase = createBrowserSupabaseClient;

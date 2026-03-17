@@ -60,7 +60,7 @@ export default function Register() {
           },
         },
       });
-    } catch (error) {
+    } catch {
       toast.error("Failed to login with Google");
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export default function Register() {
 
       toast.success("Registration successful");
       router.push("/rooms");
-    } catch (error) {
+    } catch {
       toast.error("Failed to register");
     }
   };

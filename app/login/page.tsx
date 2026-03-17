@@ -57,7 +57,7 @@ export default function Login() {
           },
         },
       });
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to login with Google");
     } finally {
       setLoading(false);
@@ -85,7 +85,7 @@ export default function Login() {
 
       toast.success("Login successful");
       router.push("/rooms");
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to login");
     }
   };

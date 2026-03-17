@@ -60,7 +60,7 @@ export default function RegisterModalPage() {
           },
         },
       });
-    } catch (error) {
+    } catch {
       toast.error("Failed to login with Google");
     } finally {
       setLoading(false);
@@ -86,7 +86,7 @@ export default function RegisterModalPage() {
       toast.success("Registration successful");
       setIsOpen(false);
       router.push("/rooms");
-    } catch (error) {
+    } catch {
       toast.error("Failed to register");
     }
   };

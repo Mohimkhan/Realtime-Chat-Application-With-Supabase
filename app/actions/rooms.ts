@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export async function createRoom(data: z.infer<typeof createRoomSchema>) {
-  const { success, error } = createRoomSchema.safeParse(data);
+  const { success } = createRoomSchema.safeParse(data);
 
   if (!success) {
     return { error: true, message: "Invalid Room Data" };

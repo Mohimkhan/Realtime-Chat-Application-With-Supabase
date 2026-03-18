@@ -14,14 +14,10 @@ export const registerSchema = z
       .string()
       .min(6, "Confirm password must be at least 6 characters"),
   })
-  .refine(
-    (data: z.infer<typeof registerSchema>) =>
-      data.password === data.confirmPassword,
-    {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    },
-  );
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email"),

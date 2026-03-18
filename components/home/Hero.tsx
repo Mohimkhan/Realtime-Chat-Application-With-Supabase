@@ -11,11 +11,9 @@ import { appName } from "@/constants";
 const TiltCard = ({
   children,
   className,
-  initialRotate = 0,
 }: {
   children: React.ReactNode;
   className?: string;
-  initialRotate?: number;
 }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);

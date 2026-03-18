@@ -1,6 +1,7 @@
 "use server";
 
 import cloudinary from "@/lib/cloudinary";
+import { UploadApiResponse } from "cloudinary";
 
 export type UploadResult =
   | { success: true; url: string }
@@ -27,24 +28,28 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResponse = await new Promise<any>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "chat-app-uploads",
-            
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        )
-        .end(buffer);
-    });
+    const uploadResponse = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              folder: "chat-app-uploads",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result as UploadApiResponse);
+            },
+          )
+          .end(buffer);
+      },
+    );
 
     return { success: true, url: uploadResponse.secure_url };
   } catch (error: unknown) {
     console.error("Cloudinary upload error:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to upload image" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to upload image",
+    };
   }
 }

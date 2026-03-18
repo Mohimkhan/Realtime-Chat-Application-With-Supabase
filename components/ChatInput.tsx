@@ -157,7 +157,7 @@ export function ChatInput({
                 alt="Selected"
                 className="size-full object-cover rounded-md cursor-pointer"
                 fill
-                onClick={(e) => {
+                onClick={() => {
                   setOpen(true);
                   setImageSrc(URL.createObjectURL(selectedFile));
                 }}

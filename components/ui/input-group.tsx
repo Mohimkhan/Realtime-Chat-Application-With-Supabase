@@ -159,6 +159,8 @@ const InputGroupTextarea = React.forwardRef<
   );
 });
 
+InputGroupTextarea.displayName = "InputGroupTextarea";
+
 export {
   InputGroup,
   InputGroupAddon,

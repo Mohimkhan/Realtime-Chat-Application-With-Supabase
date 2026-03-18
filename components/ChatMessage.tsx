@@ -2,6 +2,7 @@ import { Message } from "@/app/actions/message";
 import { formatCustomDate } from "@/lib/utils";
 import Image from "next/image";
 import { LoadingSwap } from "./ui/loading-swap";
+import ImageModalWrapper from "./common/ImageModalWrapper";
 
 export function ChatMessage({
   text,
@@ -56,13 +57,18 @@ export function ChatMessage({
           <div
             className={`flex flex-col gap-1 ${author_id === currentUserId ? "items-start" : "items-end"}`}
           >
-            <Image
-              src={image_url}
-              alt={author?.name ?? "Unknown"}
-              width={240}
-              height={240}
-              className={`w-60 h-60 rounded-md border-[2px] dark:border-white/50 border-black object-cover ${text ? "-mt-2" : ""}`}
-            />
+            <ImageModalWrapper imageSrc={image_url}>
+              {(setOpen) => (
+                <Image
+                  onClick={() => setOpen(true)}
+                  src={image_url}
+                  alt="Image Not Found!"
+                  width={240}
+                  height={240}
+                  className={`w-60 h-60 rounded-md border-[2px] dark:border-white/50 border-black object-cover cursor-pointer ${text ? "-mt-2" : ""}`}
+                />
+              )}
+            </ImageModalWrapper>
             {!text && (
               <span className="text-sm text-gray-400 text-nowrap">
                 {formatCustomDate(new Date(created_at)).time}

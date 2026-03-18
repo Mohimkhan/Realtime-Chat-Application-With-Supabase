@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { uploadImage } from "@/app/actions/upload";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import ImageViewerModal from "./modals/ImageViewerModal";
 
 export function ChatInput({
   roomId,
@@ -39,6 +40,8 @@ export function ChatInput({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [open, setOpen] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>("");
 
   // Adjust the textarea height with the content and scroll, for all browsers as firefox doesn't support field-sizing
   useEffect(() => {
@@ -140,6 +143,11 @@ export function ChatInput({
 
   return (
     <form onSubmit={handleSubmit}>
+      <ImageViewerModal
+        open={open}
+        setOpen={setOpen}
+        imageSrc={imageSrc}
+      />
       <InputGroup className="container flex items-center bg-white text-black dark:text-white dark:!bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
         <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
           {selectedFile ? (
@@ -147,8 +155,12 @@ export function ChatInput({
               <Image
                 src={URL.createObjectURL(selectedFile)}
                 alt="Selected"
-                className="size-full object-cover rounded-md"
+                className="size-full object-cover rounded-md cursor-pointer"
                 fill
+                onClick={(e) => {
+                  setOpen(true);
+                  setImageSrc(URL.createObjectURL(selectedFile));
+                }}
               />
               <Button
                 type="button"

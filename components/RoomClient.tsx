@@ -5,20 +5,8 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { formatCustomDate, groupBy } from "@/lib/utils";
-import { ActionButton } from "./ui/action-button";
 import { useRealTimeChat } from "@/hooks";
-
-function InviteUserModal() {
-  return (
-    <ActionButton
-      requireAreYouSure={true}
-      areYouSureDescription="Are you sure you want to invite friends?"
-      action={async () => ({ error: false, message: "" })}
-    >
-      Invite User
-    </ActionButton>
-  );
-}
+import InviteUserModal from "./common/InviteUserModal";
 
 export default function RoomClient({
   room,

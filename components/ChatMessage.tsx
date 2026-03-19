@@ -87,7 +87,7 @@ export function ChatMessage({
             </span>
           </div>
           <span
-            className={`text-sm text-black dark:text-white flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} gap-2 text-justify`}
+            className={`text-sm bg-blue-600 text-white rounded-md p-2 flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} gap-2 text-justify`}
           >
             <div className="flex">
               <pre className="text-wrap">{text}</pre>

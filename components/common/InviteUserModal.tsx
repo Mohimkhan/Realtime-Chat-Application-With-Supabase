@@ -54,9 +54,10 @@ const InviteUserModal = () => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-sm w-[calc(100%-3rem)]">
           <DialogHeader className="gap-2">
-            <DialogTitle>Enter you're friend's email</DialogTitle>
+            <DialogTitle>Enter you&apos;re friend&apos;s email</DialogTitle>
             <DialogDescription>
-              You're friend will get an email with a link to join the chat.
+              You&apos;re friend will get an email with a link to join the
+              chat.
             </DialogDescription>
           </DialogHeader>
           <Controller

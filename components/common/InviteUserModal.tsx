@@ -18,6 +18,10 @@ import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoadingSwap } from "../ui/loading-swap";
+import { useDebounce } from "@/hooks";
+import { useEffect, useState } from "react";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 const inviteUserSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -27,6 +31,7 @@ const InviteUserModal = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
@@ -36,9 +41,49 @@ const InviteUserModal = () => {
     resolver: zodResolver(inviteUserSchema),
   });
 
+  const [userInfo, setUserInfo] = useState<{
+    id: string;
+    name: string;
+    image_url: string;
+  } | null>(null);
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const handleInvite = (data: z.infer<typeof inviteUserSchema>) => {
     console.log(data);
   };
+
+  const supabase = createBrowserSupabaseClient;
+
+  const email = watch("email");
+
+  const debouncedEmail = useDebounce(email, 1500);
+
+  useEffect(() => {
+    if (debouncedEmail) {
+      const fetchUser = async () => {
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("email", debouncedEmail)
+          .single();
+
+        if (error) {
+          setErrorMessage("User not found");
+          return;
+        }
+
+        if (data) {
+          setUserInfo({
+            id: data.id,
+            name: data.name,
+            image_url: data.image_url,
+          });
+        }
+      };
+      fetchUser();
+    }
+  }, [debouncedEmail]);
 
   return (
     <Dialog>
@@ -56,8 +101,7 @@ const InviteUserModal = () => {
           <DialogHeader className="gap-2">
             <DialogTitle>Enter you&apos;re friend&apos;s email</DialogTitle>
             <DialogDescription>
-              You&apos;re friend will get an email with a link to join the
-              chat.
+              You&apos;re friend will get an email with a link to join the chat.
             </DialogDescription>
           </DialogHeader>
           <Controller
@@ -78,6 +122,23 @@ const InviteUserModal = () => {
               </Field>
             )}
           />
+          {!userInfo && errorMessage && (
+            <p className="text-red-500 text-sm">{errorMessage}</p>
+          )}
+          {userInfo && (
+            <div className="flex items-center gap-2">
+              <div>
+                <Image
+                  src={userInfo.image_url}
+                  alt={userInfo.name}
+                  width={20}
+                  height={20}
+                  className="rounded-full"
+                />
+                <span>{userInfo.name}</span>
+              </div>
+            </div>
+          )}
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

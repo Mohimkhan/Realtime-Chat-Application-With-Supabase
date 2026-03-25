@@ -19,7 +19,7 @@ A modern, high-performance realtime chat application built with **Next.js 14**, 
 
 ## ✨ Features
 
-- **⚡ Realtime Messaging**: Instant message delivery using Supabase Realtime.
+- **⚡ Realtime Messaging**: Instant message delivery using Supabase Realtime. Allows users to send text messages, images, and also voice messages (in the near future).
 - **🔐 Secure Authentication**: Robust user authentication and session management.
 - **💬 Chat Rooms**: Create, join, and manage public and private chat rooms.
 - **🎨 Responsive Design**: Fully optimized for mobile, tablet, and desktop views.

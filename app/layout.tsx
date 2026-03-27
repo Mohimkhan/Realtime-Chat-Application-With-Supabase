@@ -22,6 +22,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "RapidChat",
   description: "Realtime Chat Application",
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

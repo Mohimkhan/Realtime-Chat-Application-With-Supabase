@@ -32,6 +32,7 @@ const InviteUserModal = () => {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
@@ -47,6 +48,8 @@ const InviteUserModal = () => {
     image_url: string;
   } | null>(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleInvite = (data: z.infer<typeof inviteUserSchema>) => {
@@ -61,19 +64,26 @@ const InviteUserModal = () => {
 
   useEffect(() => {
     if (debouncedEmail) {
+      setLoading(true);
+      setErrorMessage("");
+      setUserInfo(null);
+
       const fetchUser = async () => {
         const { data, error } = await supabase
           .from("user_profiles")
           .select("*")
           .eq("email", debouncedEmail)
-          .single();
+          .maybeSingle();
 
         if (error) {
           setErrorMessage("User not found");
+          setLoading(false);
+          console.log(error);
           return;
         }
 
         if (data) {
+          setLoading(false);
           setUserInfo({
             id: data.id,
             name: data.name,
@@ -86,7 +96,16 @@ const InviteUserModal = () => {
   }, [debouncedEmail]);
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          setUserInfo(null);
+          setErrorMessage("");
+          setLoading(false);
+          reset();
+        }
+      }}
+    >
       <form onSubmit={handleSubmit(handleInvite)}>
         <DialogTrigger asChild>
           <Button
@@ -122,6 +141,7 @@ const InviteUserModal = () => {
               </Field>
             )}
           />
+          {loading && <p>Loading...</p>}
           {!userInfo && errorMessage && (
             <p className="text-red-500 text-sm">{errorMessage}</p>
           )}

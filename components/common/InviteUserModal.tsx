@@ -22,12 +22,19 @@ import { useDebounce } from "@/hooks";
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 const inviteUserSchema = z.object({
   email: z.string().email("Invalid email"),
 });
 
-const InviteUserModal = () => {
+const InviteUserModal = ({
+  roomId,
+  userId,
+}: {
+  roomId: string;
+  userId: string;
+}) => {
   const {
     control,
     handleSubmit,
@@ -45,22 +52,51 @@ const InviteUserModal = () => {
   const [userInfo, setUserInfo] = useState<{
     id: string;
     name: string;
+    email: string;
     image_url: string;
   } | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
-
   const [errorMessage, setErrorMessage] = useState<string>("");
-
-  const handleInvite = (data: z.infer<typeof inviteUserSchema>) => {
-    console.log(data);
-  };
 
   const supabase = createBrowserSupabaseClient;
 
+  const handleInvite = async (data: z.infer<typeof inviteUserSchema>) => {
+    if (!userInfo) {
+      toast.error("Please select a valid user to invite");
+      return;
+    }
+
+    if (userInfo.id === userId) {
+      toast.error("You cannot invite yourself");
+      return;
+    }
+
+    const { data: roomData, error } = await supabase
+      .from("chat_room_member")
+      .insert({
+        room_id: roomId,
+        member_id: userInfo.id,
+      })
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      toast.error("An error occurred while inviting user");
+      console.log(error);
+      return;
+    }
+
+    if (roomData) {
+      toast.success("User invited successfully");
+      reset();
+    }
+  };
+
+
   const email = watch("email");
 
-  const debouncedEmail = useDebounce(email, 1500);
+  const debouncedEmail = useDebounce(email, 500);
 
   useEffect(() => {
     if (debouncedEmail) {
@@ -71,24 +107,27 @@ const InviteUserModal = () => {
       const fetchUser = async () => {
         const { data, error } = await supabase
           .from("user_profiles")
-          .select("*")
+          .select("id, name, email, image_url")
           .eq("email", debouncedEmail)
           .maybeSingle();
 
+        setLoading(false);
+
         if (error) {
-          setErrorMessage("User not found");
-          setLoading(false);
+          setErrorMessage("An error occurred while fetching user");
           console.log(error);
           return;
         }
 
         if (data) {
-          setLoading(false);
           setUserInfo({
             id: data.id,
             name: data.name,
+            email: data.email,
             image_url: data.image_url,
           });
+        } else {
+          setErrorMessage("User not found");
         }
       };
       fetchUser();
@@ -146,17 +185,15 @@ const InviteUserModal = () => {
             <p className="text-red-500 text-sm">{errorMessage}</p>
           )}
           {userInfo && (
-            <div className="flex items-center gap-2">
-              <div>
-                <Image
-                  src={userInfo.image_url}
-                  alt={userInfo.name}
-                  width={20}
-                  height={20}
-                  className="rounded-full"
-                />
-                <span>{userInfo.name}</span>
-              </div>
+            <div className="flex items-center gap-2 mt-2">
+              <Image
+                src={userInfo.image_url}
+                alt={userInfo.name}
+                width={30}
+                height={30}
+                className="rounded-full"
+              />
+              <span>{userInfo.name}</span>
             </div>
           )}
           <DialogFooter>
@@ -165,7 +202,7 @@ const InviteUserModal = () => {
             </DialogClose>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !userInfo}
             >
               <LoadingSwap isLoading={isSubmitting}>Invite</LoadingSwap>
             </Button>

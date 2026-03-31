@@ -40,7 +40,7 @@ const InviteUserModal = ({
     handleSubmit,
     watch,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: {
       email: "",
@@ -61,7 +61,7 @@ const InviteUserModal = ({
 
   const supabase = createBrowserSupabaseClient;
 
-  const handleInvite = async (data: z.infer<typeof inviteUserSchema>) => {
+  const handleInvite = async () => {
     if (!userInfo) {
       toast.error("Please select a valid user to invite");
       return;
@@ -72,10 +72,22 @@ const InviteUserModal = ({
       return;
     }
 
+    const { data: existingMember } = await supabase
+      .from("chat_room_member")
+      .select("*")
+      .eq("chat_room_id", roomId)
+      .eq("member_id", userInfo.id)
+      .maybeSingle();
+
+    if (existingMember) {
+      toast.error("User is already a member of this chat room");
+      return;
+    }
+
     const { data: roomData, error } = await supabase
       .from("chat_room_member")
       .insert({
-        room_id: roomId,
+        chat_room_id: roomId,
         member_id: userInfo.id,
       })
       .select("*")
@@ -87,19 +99,18 @@ const InviteUserModal = ({
       return;
     }
 
-    if (roomData) {
+    if (roomData?.member_id) {
       toast.success("User invited successfully");
       reset();
     }
   };
 
-
   const email = watch("email");
 
-  const debouncedEmail = useDebounce(email, 500);
+  const debouncedEmail = useDebounce(email, 700);
 
   useEffect(() => {
-    if (debouncedEmail) {
+    if (debouncedEmail && !errors.email) {
       setLoading(true);
       setErrorMessage("");
       setUserInfo(null);
@@ -145,17 +156,20 @@ const InviteUserModal = ({
         }
       }}
     >
-      <form onSubmit={handleSubmit(handleInvite)}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-transparent border-[1px] border-black/10 text-black dark:border-white/20 dark:text-white hover:bg-gray-100/50 hover:dark:bg-white/10"
-          >
-            <UserPlus />
-            Invite User
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-sm w-[calc(100%-3rem)]">
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="bg-transparent border-[1px] border-black/10 text-black dark:border-white/20 dark:text-white hover:bg-gray-100/50 hover:dark:bg-white/10"
+        >
+          <UserPlus />
+          Invite User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-sm w-[calc(100%-3rem)]">
+        <form
+          onSubmit={handleSubmit(handleInvite)}
+          className="flex flex-col gap-4"
+        >
           <DialogHeader className="gap-2">
             <DialogTitle>Enter you&apos;re friend&apos;s email</DialogTitle>
             <DialogDescription>
@@ -181,8 +195,10 @@ const InviteUserModal = ({
             )}
           />
           {loading && <p>Loading...</p>}
-          {!userInfo && errorMessage && (
-            <p className="text-red-500 text-sm">{errorMessage}</p>
+          {!errors?.email && !userInfo && errorMessage && (
+            <p className="w-full bg-red-500/10 p-2 rounded-md text-center text-red-500 text-sm">
+              {errorMessage}
+            </p>
           )}
           {userInfo && (
             <div className="flex items-center gap-2 mt-2">
@@ -198,7 +214,12 @@ const InviteUserModal = ({
           )}
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                type="button"
+              >
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"
@@ -207,8 +228,8 @@ const InviteUserModal = ({
               <LoadingSwap isLoading={isSubmitting}>Invite</LoadingSwap>
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 };

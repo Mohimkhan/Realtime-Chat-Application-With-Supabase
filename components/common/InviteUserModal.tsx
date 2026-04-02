@@ -62,9 +62,9 @@ const InviteUserModal = ({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
 
-  const supabase = createBrowserSupabaseClient;
-
   const handleInvite = async () => {
+    const supabase = createBrowserSupabaseClient;
+
     if (!userInfo) {
       toast.error("Please select a valid user to invite");
       return;
@@ -140,7 +140,7 @@ const InviteUserModal = ({
       setOpen(false);
       setUserInfo(null);
       reset();
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while sending invitation email");
     }
   };
@@ -154,6 +154,8 @@ const InviteUserModal = ({
       setLoading(true);
       setErrorMessage("");
       setUserInfo(null);
+
+      const supabase = createBrowserSupabaseClient;
 
       const fetchUser = async () => {
         const { data, error } = await supabase
@@ -183,7 +185,7 @@ const InviteUserModal = ({
       };
       fetchUser();
     }
-  }, [debouncedEmail]);
+  }, [debouncedEmail, errors.email]);
 
   return (
     <Dialog

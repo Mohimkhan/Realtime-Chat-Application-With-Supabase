@@ -38,7 +38,7 @@ export async function sendEmail({
       throw new Error("Email credentials not found");
     }
 
-    let info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: " + info.messageId);
 
     return info;

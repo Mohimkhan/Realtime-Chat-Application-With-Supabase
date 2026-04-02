@@ -23,6 +23,8 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { sendInviteEmail } from "@/app/actions/email";
+import { getInviteEmailHtml } from "@/lib/utils/emailTemplate";
 
 const inviteUserSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -58,6 +60,7 @@ const InviteUserModal = ({
 
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
 
   const supabase = createBrowserSupabaseClient;
 
@@ -95,13 +98,50 @@ const InviteUserModal = ({
 
     if (error) {
       toast.error("An error occurred while inviting user");
-      console.log(error);
       return;
     }
 
     if (roomData?.member_id) {
       toast.success("User invited successfully");
       reset();
+    }
+
+    const { data: senderData } = await supabase
+      .from("user_profiles")
+      .select("name, image_url")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const senderName = senderData?.name || "A user";
+    const senderImage =
+      senderData?.image_url ||
+      "https://ui-avatars.com/api/?name=" + encodeURIComponent(senderName);
+    const roomLink =
+      typeof window !== "undefined"
+        ? window.location.origin + "/rooms/" + roomId
+        : "";
+
+    const emailHtml = getInviteEmailHtml({
+      senderName,
+      senderImage,
+      receiverName: userInfo.name,
+      receiverImage: userInfo.image_url,
+      roomLink,
+    });
+
+    try {
+      await sendInviteEmail({
+        to: userInfo.email,
+        subject: `You have been invited to a RapidChat room by ${senderName}`,
+        text: `${senderName} has invited you to join a chat room on RapidChat. Join here: ${roomLink}`,
+        html: emailHtml,
+      });
+
+      setOpen(false);
+      setUserInfo(null);
+      reset();
+    } catch (error) {
+      toast.error("An error occurred while sending invitation email");
     }
   };
 
@@ -147,8 +187,10 @@ const InviteUserModal = ({
 
   return (
     <Dialog
-      onOpenChange={(open) => {
-        if (!open) {
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
           setUserInfo(null);
           setErrorMessage("");
           setLoading(false);
@@ -160,6 +202,7 @@ const InviteUserModal = ({
         <Button
           variant="outline"
           className="bg-transparent border-[1px] border-black/10 text-black dark:border-white/20 dark:text-white hover:bg-gray-100/50 hover:dark:bg-white/10"
+          onClick={() => setOpen(true)}
         >
           <UserPlus />
           Invite User
@@ -200,7 +243,7 @@ const InviteUserModal = ({
               {errorMessage}
             </p>
           )}
-          {userInfo && (
+          {userInfo && !errors?.email && (
             <div className="flex items-center gap-2 mt-2">
               <Image
                 src={userInfo.image_url}
@@ -217,13 +260,20 @@ const InviteUserModal = ({
               <Button
                 variant="outline"
                 type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setUserInfo(null);
+                  setErrorMessage("");
+                  setLoading(false);
+                  reset();
+                }}
               >
                 Cancel
               </Button>
             </DialogClose>
             <Button
               type="submit"
-              disabled={isSubmitting || !userInfo}
+              disabled={isSubmitting || !userInfo || !email.trim().length}
             >
               <LoadingSwap isLoading={isSubmitting}>Invite</LoadingSwap>
             </Button>

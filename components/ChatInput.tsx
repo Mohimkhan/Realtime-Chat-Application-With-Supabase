@@ -16,12 +16,13 @@ import {
   useState,
 } from "react";
 import { Message, sendMessage } from "@/app/actions/message";
-import { Camera, X } from "lucide-react";
+import { Camera, X, Mic } from "lucide-react";
 import { toast } from "react-toastify";
 import { uploadImage } from "@/app/actions/upload";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import ImageViewerModal from "./modals/ImageViewerModal";
+import VoiceRecordingModal from "./modals/VoiceRecordingModal";
 
 export function ChatInput({
   roomId,
@@ -42,6 +43,7 @@ export function ChatInput({
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [open, setOpen] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>("");
+  const [isVoiceRecordingOpen, setIsVoiceRecordingOpen] = useState(false);
 
   // Adjust the textarea height with the content and scroll, for all browsers as firefox doesn't support field-sizing
   useEffect(() => {
@@ -148,40 +150,56 @@ export function ChatInput({
         setOpen={setOpen}
         imageSrc={imageSrc}
       />
+      <VoiceRecordingModal
+        open={isVoiceRecordingOpen}
+        setOpen={setIsVoiceRecordingOpen}
+      />
       <InputGroup className="container flex items-center bg-white text-black dark:text-white dark:!bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
-        <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
-          {selectedFile ? (
-            <div className="relative size-full flex items-center justify-center">
-              <Image
-                src={URL.createObjectURL(selectedFile)}
-                alt="Selected"
-                className="size-full object-cover rounded-md cursor-pointer"
-                fill
-                onClick={() => {
-                  setOpen(true);
-                  setImageSrc(URL.createObjectURL(selectedFile));
-                }}
-              />
-              <Button
-                type="button"
-                className="absolute -top-1 -right-1 size-4 bg-red-500 text-white rounded-full p-0.5 hover:scale-125 hover:bg-red-500"
-                onClick={() => setSelectedFile(null)}
-              >
-                <X size={10} />
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Camera className="[grid-area:overlay]" />
-              <input
-                type="file"
-                name="fileUpload"
-                id="fileUpload"
-                className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none" : ""}`}
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </>
+        <div className="flex items-center gap-1 pl-1">
+          <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
+            {selectedFile ? (
+              <div className="relative size-full flex items-center justify-center">
+                <Image
+                  src={URL.createObjectURL(selectedFile)}
+                  alt="Selected"
+                  className="size-full object-cover rounded-md cursor-pointer"
+                  fill
+                  onClick={() => {
+                    setOpen(true);
+                    setImageSrc(URL.createObjectURL(selectedFile));
+                  }}
+                />
+                <Button
+                  type="button"
+                  className="absolute -top-1 -right-1 size-4 bg-red-500 text-white rounded-full p-0.5 hover:scale-125 hover:bg-red-500"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  <X size={10} />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Camera className="[grid-area:overlay]" />
+                <input
+                  type="file"
+                  name="fileUpload"
+                  id="fileUpload"
+                  className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none" : ""}`}
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
+          </div>
+          {!selectedFile && (
+            <button
+              type="button"
+              className="size-10 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-700 dark:text-gray-300"
+              onClick={() => setIsVoiceRecordingOpen(true)}
+              aria-label="Voice Record"
+            >
+              <Mic size={22} />
+            </button>
           )}
         </div>
         <InputGroupTextarea

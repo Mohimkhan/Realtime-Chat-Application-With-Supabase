@@ -44,6 +44,9 @@ export function ChatInput({
   const [open, setOpen] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>("");
   const [isVoiceRecordingOpen, setIsVoiceRecordingOpen] = useState(false);
+  const [isTextFieldDisabled, setIsTextFieldDisabled] = useState(false);
+
+  const shouldDisableMic = Boolean(selectedFile && message.trim().length > 0);
 
   // Adjust the textarea height with the content and scroll, for all browsers as firefox doesn't support field-sizing
   useEffect(() => {
@@ -153,6 +156,8 @@ export function ChatInput({
       <VoiceRecordingModal
         open={isVoiceRecordingOpen}
         setOpen={setIsVoiceRecordingOpen}
+        setIsTextFieldDisabled={setIsTextFieldDisabled}
+        selectedFile={selectedFile}
       />
       <InputGroup className="container flex items-center bg-white text-black dark:text-white dark:!bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
         <div className="flex items-center gap-1 pl-1">
@@ -191,21 +196,23 @@ export function ChatInput({
               </>
             )}
           </div>
-          {!selectedFile && (
-            <button
-              type="button"
-              className="size-10 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-700 dark:text-gray-300"
-              onClick={() => setIsVoiceRecordingOpen(true)}
-              aria-label="Voice Record"
-            >
-              <Mic size={22} />
-            </button>
-          )}
+          <button
+            type="button"
+            className={`size-10 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-700 dark:text-gray-300 ${shouldDisableMic ? "pointer-events-none opacity-50" : ""}`}
+            onClick={() => {
+              setIsVoiceRecordingOpen(true);
+              setIsTextFieldDisabled(true);
+            }}
+            aria-label="Voice Record"
+            disabled={shouldDisableMic}
+          >
+            <Mic size={22} />
+          </button>
         </div>
         <InputGroupTextarea
           ref={textAreaRef}
           placeholder="Type your message..."
-          className="py-0.5 min-h-[25px] h-[25px] max-h-[200px]"
+          className="py-0.5 mx-2 min-h-[25px] h-[25px] max-h-[200px]"
           style={{
             scrollbarWidth: "thin",
           }}
@@ -217,6 +224,7 @@ export function ChatInput({
               handleSubmit(e);
             }
           }}
+          disabled={isTextFieldDisabled}
         />
         <InputGroupAddon align="inline-end">
           <InputGroupButton

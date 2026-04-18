@@ -23,6 +23,12 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import ImageViewerModal from "./modals/ImageViewerModal";
 import VoiceRecordingModal from "./modals/VoiceRecordingModal";
+import CustomAudioPlayer from "./common/CustomAudioPlayer";
+
+/**
+ * TODO[REFACTOR_1]: Make the CustomAudioPlayer more response for 300px width device
+ * TODO[FEAT_2]: Add audio duration on the CustomAudioPlayer and when I listen to it, it will show what is left to listen
+ */
 
 export function ChatInput({
   roomId,
@@ -37,6 +43,7 @@ export function ChatInput({
     image_url: string;
   };
 }) {
+  console.log("ChatInput rendered");
   const [message, setMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -45,6 +52,8 @@ export function ChatInput({
   const [imageSrc, setImageSrc] = useState<string>("");
   const [isVoiceRecordingOpen, setIsVoiceRecordingOpen] = useState(false);
   const [isTextFieldDisabled, setIsTextFieldDisabled] = useState(false);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const shouldDisableMic = Boolean(selectedFile && message.trim().length > 0);
 
@@ -146,8 +155,17 @@ export function ChatInput({
     }
   };
 
+  useEffect(() => {
+    console.log("audioChunks", audioChunks);
+    console.log("audioChunks len", audioChunks.length);
+  }, [audioChunks]);
+
+  const audioSrc = URL.createObjectURL(
+    new Blob(audioChunks, { type: "audio/webm" }),
+  );
+
   return (
-    <form onSubmit={handleSubmit}>
+    <>
       <ImageViewerModal
         open={open}
         setOpen={setOpen}
@@ -158,86 +176,124 @@ export function ChatInput({
         setOpen={setIsVoiceRecordingOpen}
         setIsTextFieldDisabled={setIsTextFieldDisabled}
         selectedFile={selectedFile}
+        mediaRecorderRef={mediaRecorderRef}
+        setAudioChunks={setAudioChunks}
       />
-      <InputGroup className="container flex items-center bg-white text-black dark:text-white dark:!bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
-        <div className="flex items-center gap-1 pl-1">
-          <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
-            {selectedFile ? (
-              <div className="relative size-full flex items-center justify-center">
-                <Image
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Selected"
-                  className="size-full object-cover rounded-md cursor-pointer"
-                  fill
-                  onClick={() => {
-                    setOpen(true);
-                    setImageSrc(URL.createObjectURL(selectedFile));
-                  }}
-                />
-                <Button
-                  type="button"
-                  className="absolute -top-1 -right-1 size-4 bg-red-500 text-white rounded-full p-0.5 hover:scale-125 hover:bg-red-500"
-                  onClick={() => setSelectedFile(null)}
-                >
-                  <X size={10} />
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Camera className="[grid-area:overlay]" />
-                <input
-                  type="file"
-                  name="fileUpload"
-                  id="fileUpload"
-                  className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none" : ""}`}
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </>
-            )}
-          </div>
-          <button
-            type="button"
-            className={`size-10 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-700 dark:text-gray-300 ${shouldDisableMic ? "pointer-events-none opacity-50" : ""}`}
-            onClick={() => {
-              setIsVoiceRecordingOpen(true);
-              setIsTextFieldDisabled(true);
-            }}
-            aria-label="Voice Record"
-            disabled={shouldDisableMic}
-          >
-            <Mic size={22} />
-          </button>
-        </div>
-        <InputGroupTextarea
-          ref={textAreaRef}
-          placeholder="Type your message..."
-          className="py-0.5 mx-2 min-h-[25px] h-[25px] max-h-[200px]"
-          style={{
-            scrollbarWidth: "thin",
-          }}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e);
+      {audioChunks.length > 0 && (
+        <CustomAudioPlayer
+          audioSrc={audioSrc}
+          onRemove={() => {
+            setAudioChunks([]);
+            setIsTextFieldDisabled(false);
+
+            if (mediaRecorderRef.current) {
+              mediaRecorderRef.current.ondataavailable = null;
+              if (mediaRecorderRef.current.state !== "inactive") {
+                mediaRecorderRef.current.stop();
+              }
+              if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
+                mediaRecorderRef.current.stream
+                  .getTracks()
+                  .forEach((track) => track.stop());
+              }
+              mediaRecorderRef.current = null;
             }
           }}
-          disabled={isTextFieldDisabled}
         />
-        <InputGroupAddon align="inline-end">
-          <InputGroupButton
-            type="submit"
-            aria-label="Send"
-            title="Send"
-            size={"icon-sm"}
-            disabled={isUploading || (!message.trim() && !selectedFile)}
-          >
-            <SendIcon className={isUploading ? "animate-pulse" : ""} />
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
-    </form>
+      )}
+      <form onSubmit={handleSubmit}>
+        <InputGroup className="container flex items-center bg-white text-black dark:text-white dark:!bg-black absolute bottom-[51px] left-1/2 -translate-x-1/2">
+          <div className="flex items-center gap-1 pl-1">
+            <div className="grid [grid-template-areas:overlay] place-items-center size-10 overflow-hidden relative">
+              {selectedFile ? (
+                <div className="relative size-full flex items-center justify-center">
+                  <Image
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Selected"
+                    className="size-full object-cover rounded-md cursor-pointer"
+                    fill
+                    onClick={() => {
+                      setOpen(true);
+                      setImageSrc(URL.createObjectURL(selectedFile));
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    className="absolute -top-1 -right-1 size-4 bg-red-500 text-white rounded-full p-0.5 hover:scale-125 hover:bg-red-500"
+                    onClick={() => setSelectedFile(null)}
+                  >
+                    <X size={10} />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Camera className="[grid-area:overlay]" />
+                  <input
+                    type="file"
+                    name="fileUpload"
+                    id="fileUpload"
+                    className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none" : ""}`}
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              className={`size-10 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-700 dark:text-gray-300 ${shouldDisableMic ? "pointer-events-none opacity-50" : ""}`}
+              onClick={async () => {
+                try {
+                  const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                  });
+
+                  // Open the modal only if user granted permission
+                  setIsVoiceRecordingOpen(true);
+                  setIsTextFieldDisabled(true);
+                } catch (error) {
+                  // error modal will open later
+                  alert(
+                    "We need microphone access to record voice notes. Please click the lock icon in your URL bar to enable it.",
+                  );
+                }
+              }}
+              aria-label="Voice Record"
+              disabled={shouldDisableMic}
+            >
+              <Mic size={22} />
+            </button>
+          </div>
+          <InputGroupTextarea
+            ref={textAreaRef}
+            placeholder="Type your message..."
+            className="py-0.5 mx-2 min-h-[25px] h-[25px] max-h-[200px]"
+            style={{
+              scrollbarWidth: "thin",
+            }}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            disabled={isTextFieldDisabled}
+          />
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              type="submit"
+              aria-label="Send"
+              title="Send"
+              size={"icon-sm"}
+              disabled={isUploading || (!message.trim() && !selectedFile)}
+            >
+              <SendIcon className={isUploading ? "animate-pulse" : ""} />
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+      </form>
+    </>
   );
 }

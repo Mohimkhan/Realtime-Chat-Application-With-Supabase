@@ -1,15 +1,18 @@
 "use client";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-import { Square, Play, Trash2, Send, Pause } from "lucide-react";
+import { Square, Trash2, Send, Triangle } from "lucide-react";
+import { formatTime } from "@/lib/utils/user";
 
 interface VoiceRecordingModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setIsTextFieldDisabled: Dispatch<SetStateAction<boolean>>;
   selectedFile: File | null;
+  setAudioChunks: Dispatch<SetStateAction<Blob[]>>;
+  mediaRecorderRef: MutableRefObject<MediaRecorder | null>;
 }
 
 export default function VoiceRecordingModal({
@@ -17,44 +20,120 @@ export default function VoiceRecordingModal({
   setOpen,
   setIsTextFieldDisabled,
   selectedFile,
+  setAudioChunks,
+  mediaRecorderRef,
 }: VoiceRecordingModalProps) {
-  const [isRecording, setIsRecording] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
+
+  const stopTracks = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    setIsTextFieldDisabled(false);
+    setAudioChunks([]);
+    
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.ondataavailable = null;
+      if (mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      stopTracks();
+      mediaRecorderRef.current = null;
+    }
+  };
+
+  const handleDone = () => {
+    setOpen(false);
+    
+    if (mediaRecorderRef.current) {
+      if (mediaRecorderRef.current.state === "recording") {
+        mediaRecorderRef.current.requestData();
+      }
+      stopTracks();
+      if (mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      // do not nullify yet so the final data event can process
+      setTimeout(() => { mediaRecorderRef.current = null; }, 500);
+    }
+  };
 
   useEffect(() => {
     if (open) {
       setIsRecording(true);
-      setIsPlaying(false);
       setTime(0);
+      setAudioChunks([]);
     }
-  }, [open]);
+  }, [open, setAudioChunks]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (open && (isRecording || isPlaying)) {
+    if (open && isRecording) {
       interval = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [open, isRecording, isPlaying]);
+  }, [open, isRecording]);
 
-  // Format time as mm:ss
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
+  useEffect(() => {
+    const handleRecordingState = async () => {
+      // Initialize if null
+      if (!mediaRecorderRef.current) {
+        if (!isRecording) return; // Don't ask for permission if not trying to record
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const mediaRecorder = new MediaRecorder(stream);
+          mediaRecorderRef.current = mediaRecorder;
 
-  const handleClose = () => {
-    setOpen(false);
-    setIsTextFieldDisabled(false);
-  };
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              setAudioChunks((prev) => [...prev, event.data]);
+            }
+          };
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+          mediaRecorder.start();
+        } catch (error) {
+          console.error("Microphone permission denied or error:", error);
+          setOpen(false);
+          setIsTextFieldDisabled(false);
+        }
+      } else {
+        // Manage existing recorder state
+        if (isRecording) {
+          if (mediaRecorderRef.current.state === "paused") {
+            mediaRecorderRef.current.resume();
+          }
+        } else {
+          if (mediaRecorderRef.current.state === "recording") {
+            mediaRecorderRef.current.requestData();
+            mediaRecorderRef.current.pause();
+          }
+        }
+      }
+    };
+
+    if (open) {
+      handleRecordingState();
+    }
+  }, [isRecording, open, setAudioChunks, setOpen, setIsTextFieldDisabled]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      if (mediaRecorderRef.current) {
+        if (mediaRecorderRef.current.state !== "inactive") {
+          mediaRecorderRef.current.stop();
+        }
+        stopTracks();
+      }
+    };
+  }, []);
 
   return (
     <Dialog
@@ -90,10 +169,10 @@ export default function VoiceRecordingModal({
             {[...Array(30)].map((_, i) => (
               <div
                 key={i}
-                className={`w-1.5 bg-black/80 dark:bg-white/80 rounded-full transition-all duration-300 ease-in-out ${isRecording || isPlaying ? "animate-pulse" : ""}`}
+                className={`w-1.5 bg-black/80 dark:bg-white/80 rounded-full transition-all duration-300 ease-in-out ${isRecording ? "animate-pulse" : ""}`}
                 style={{
                   height:
-                    isRecording || isPlaying
+                    isRecording
                       ? `${(Math.sin(i * 0.4 + time) * 0.4 + 0.6) * 100}%`
                       : "15%",
                   animationDelay: `${i * 0.05}s`,
@@ -108,7 +187,7 @@ export default function VoiceRecordingModal({
               variant="ghost"
               size="icon"
               className="rounded-full size-12 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 transition-colors"
-              onClick={handleClose}
+              onClick={handleCancel}
               title="Delete recording"
             >
               <Trash2 className="size-5" />
@@ -119,22 +198,18 @@ export default function VoiceRecordingModal({
                 size="icon"
                 className="rounded-full size-16 bg-red-500 hover:bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
                 onClick={() => setIsRecording(false)}
-                title="Stop recording"
+                title="Pause recording"
               >
                 <Square className="size-6 fill-current" />
               </Button>
             ) : (
               <Button
                 size="icon"
-                className="rounded-full size-16 bg-primary hover:bg-primary/90 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
-                onClick={handlePlayPause}
-                title={isPlaying ? "Pause" : "Play"}
+                className="rounded-full size-16 bg-green-500 hover:bg-green-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                onClick={() => setIsRecording(true)}
+                title="Resume recording"
               >
-                {isPlaying ? (
-                  <Pause className="size-7 fill-current" />
-                ) : (
-                  <Play className="size-7 fill-current pl-1" />
-                )}
+                <Triangle className="size-6 fill-current rotate-90 ml-1" />
               </Button>
             )}
 
@@ -142,9 +217,8 @@ export default function VoiceRecordingModal({
               variant="default"
               size="icon"
               className="rounded-full size-12 bg-blue-500 hover:bg-blue-600 text-white shadow-md transition-transform hover:scale-105 active:scale-95"
-              onClick={handleClose}
-              title="Send recording"
-              disabled={isRecording}
+              onClick={handleDone}
+              title="Done recording"
             >
               <Send className="size-5 ml-0.5" />
             </Button>

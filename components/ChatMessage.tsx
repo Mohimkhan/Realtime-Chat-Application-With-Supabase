@@ -4,6 +4,11 @@ import Image from "next/image";
 import { LoadingSwap } from "./ui/loading-swap";
 import ImageModalWrapper from "./common/ImageModalWrapper";
 
+/**
+ * TODO[FIX_1]: Handle image-error status
+ * TODO[REFACTOR_2]: Refactor the status image-uploading to be more simplier with if else conditions
+ */
+
 export function ChatMessage({
   text,
   image_url,
@@ -45,9 +50,9 @@ export function ChatMessage({
           Image Uploading
         </div>
       ) : image_url ? (
-        <div>
+        <div className="rounded-md border-[2px] dark:border-white/50 border-black overflow-hidden">
           {text && (
-            <div className="text-sm text-white w-full flex bg-blue-700 rounded-md px-2 pt-1 pb-3 gap-1 flex-col items-start">
+            <div className="text-sm text-white w-full flex bg-blue-700 px-2 pt-1 pb-3 gap-1 flex-col items-start">
               <pre className="text-wrap">{text}</pre>
               <span className="text-sm text-gray-400 ml-auto text-nowrap">
                 {formatCustomDate(new Date(created_at)).time}
@@ -65,7 +70,7 @@ export function ChatMessage({
                   alt="Image Not Found!"
                   width={240}
                   height={240}
-                  className={`w-60 h-60 rounded-md border-[2px] dark:border-white/50 border-black object-cover cursor-pointer ${text ? "-mt-2" : ""}`}
+                  className={`w-60 h-60 object-cover cursor-pointer ${text ? "-mt-2" : ""}`}
                 />
               )}
             </ImageModalWrapper>

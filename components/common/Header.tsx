@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/hooks";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { getRandomUserProfileImg } from "@/lib/utils/user";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
@@ -155,7 +156,7 @@ const Header = () => {
                       ),
                       image:
                         user?.user_metadata?.avatar_url ||
-                        "/profile/user-1.jpg",
+                        getRandomUserProfileImg(),
                       name: user.user_metadata?.name.slice(
                         0,
                         user.user_metadata?.name.indexOf(" "),

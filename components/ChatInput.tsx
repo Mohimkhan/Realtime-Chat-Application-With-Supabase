@@ -248,6 +248,8 @@ export function ChatInput({
                     audio: true,
                   });
 
+                  stream.getTracks().forEach((track) => track.stop());
+
                   // Open the modal only if user granted permission
                   setIsVoiceRecordingOpen(true);
                   setIsTextFieldDisabled(true);

@@ -1,7 +1,14 @@
 "use client";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Button } from "../ui/button";
 import { Square, Trash2, Send, Triangle } from "lucide-react";
 import { formatTime } from "@/lib/utils/user";
@@ -28,15 +35,18 @@ export default function VoiceRecordingModal({
 
   const stopTracks = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
     }
   };
 
   const handleCancel = () => {
     setOpen(false);
+    setIsRecording(false);
     setIsTextFieldDisabled(false);
     setAudioChunks([]);
-    
+
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.ondataavailable = null;
       if (mediaRecorderRef.current.state !== "inactive") {
@@ -49,7 +59,8 @@ export default function VoiceRecordingModal({
 
   const handleDone = () => {
     setOpen(false);
-    
+    setIsRecording(false);
+
     if (mediaRecorderRef.current) {
       if (mediaRecorderRef.current.state === "recording") {
         mediaRecorderRef.current.requestData();
@@ -59,7 +70,9 @@ export default function VoiceRecordingModal({
         mediaRecorderRef.current.stop();
       }
       // do not nullify yet so the final data event can process
-      setTimeout(() => { mediaRecorderRef.current = null; }, 500);
+      setTimeout(() => {
+        mediaRecorderRef.current = null;
+      }, 500);
     }
   };
 
@@ -68,6 +81,15 @@ export default function VoiceRecordingModal({
       setIsRecording(true);
       setTime(0);
       setAudioChunks([]);
+
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.ondataavailable = null;
+        if (mediaRecorderRef.current.state !== "inactive") {
+          mediaRecorderRef.current.stop();
+        }
+        stopTracks();
+        mediaRecorderRef.current = null;
+      }
     }
   }, [open, setAudioChunks]);
 
@@ -83,11 +105,15 @@ export default function VoiceRecordingModal({
 
   useEffect(() => {
     const handleRecordingState = async () => {
+      if (!open) return;
+
       // Initialize if null
       if (!mediaRecorderRef.current) {
         if (!isRecording) return; // Don't ask for permission if not trying to record
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
           const mediaRecorder = new MediaRecorder(stream);
           mediaRecorderRef.current = mediaRecorder;
 
@@ -118,19 +144,23 @@ export default function VoiceRecordingModal({
       }
     };
 
-    if (open) {
-      handleRecordingState();
-    }
+    handleRecordingState();
   }, [isRecording, open, setAudioChunks, setOpen, setIsTextFieldDisabled]);
 
   useEffect(() => {
     return () => {
-      // Cleanup on unmount
+      setAudioChunks([]);
+      setIsTextFieldDisabled(false);
+      setIsRecording(false);
+      setTime(0);
+
       if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.ondataavailable = null;
         if (mediaRecorderRef.current.state !== "inactive") {
           mediaRecorderRef.current.stop();
         }
         stopTracks();
+        mediaRecorderRef.current = null;
       }
     };
   }, []);
@@ -138,14 +168,8 @@ export default function VoiceRecordingModal({
   return (
     <Dialog
       open={open}
-      onOpenChange={(open) => {
-        setOpen(open);
-        if (selectedFile && time > 0) {
-          setIsTextFieldDisabled(true);
-          return;
-        }
-
-        setIsTextFieldDisabled(false);
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
       }}
     >
       <DialogContent className="sm:max-w-md bg-white dark:bg-black rounded-2xl">
@@ -171,10 +195,9 @@ export default function VoiceRecordingModal({
                 key={i}
                 className={`w-1.5 bg-black/80 dark:bg-white/80 rounded-full transition-all duration-300 ease-in-out ${isRecording ? "animate-pulse" : ""}`}
                 style={{
-                  height:
-                    isRecording
-                      ? `${(Math.sin(i * 0.4 + time) * 0.4 + 0.6) * 100}%`
-                      : "15%",
+                  height: isRecording
+                    ? `${(Math.sin(i * 0.4 + time) * 0.4 + 0.6) * 100}%`
+                    : "15%",
                   animationDelay: `${i * 0.05}s`,
                   animationDuration: "1s",
                 }}

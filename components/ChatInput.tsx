@@ -175,7 +175,6 @@ export function ChatInput({
         open={isVoiceRecordingOpen}
         setOpen={setIsVoiceRecordingOpen}
         setIsTextFieldDisabled={setIsTextFieldDisabled}
-        selectedFile={selectedFile}
         mediaRecorderRef={mediaRecorderRef}
         setAudioChunks={setAudioChunks}
       />
@@ -253,7 +252,7 @@ export function ChatInput({
                   // Open the modal only if user granted permission
                   setIsVoiceRecordingOpen(true);
                   setIsTextFieldDisabled(true);
-                } catch (error) {
+                } catch {
                   // error modal will open later
                   alert(
                     "We need microphone access to record voice notes. Please click the lock icon in your URL bar to enable it.",

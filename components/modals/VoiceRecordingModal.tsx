@@ -6,7 +6,6 @@ import {
   MutableRefObject,
   SetStateAction,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { Button } from "../ui/button";
@@ -17,7 +16,6 @@ interface VoiceRecordingModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setIsTextFieldDisabled: Dispatch<SetStateAction<boolean>>;
-  selectedFile: File | null;
   setAudioChunks: Dispatch<SetStateAction<Blob[]>>;
   mediaRecorderRef: MutableRefObject<MediaRecorder | null>;
 }
@@ -26,7 +24,6 @@ export default function VoiceRecordingModal({
   open,
   setOpen,
   setIsTextFieldDisabled,
-  selectedFile,
   setAudioChunks,
   mediaRecorderRef,
 }: VoiceRecordingModalProps) {

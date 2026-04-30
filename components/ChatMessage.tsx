@@ -28,7 +28,7 @@ export function ChatMessage({
           alt={author?.name ?? "Unknown"}
           width={40}
           height={40}
-          className={`rounded-full border-[2px] dark:border-white/50 border-black ${author_id !== currentUserId ? "order-2" : ""}`}
+          className={`rounded-full aspect-square object-cover border-[2px] dark:border-white/50 border-black ${author_id !== currentUserId ? "order-2" : ""}`}
         />
       ) : (
         <div

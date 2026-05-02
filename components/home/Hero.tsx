@@ -101,7 +101,7 @@ export default function Hero({ user }: { user: User | null }) {
                 size="lg"
                 className="rounded-full px-8 h-10 md:h-11 text-sm md:text-base font-medium shadow-lg hover:shadow-primary/25 transition-all"
               >
-                Get Started
+                {user?.id ? "Go to Rooms" : "Get Started"}
               </Button>
             </Link>
           </motion.div>

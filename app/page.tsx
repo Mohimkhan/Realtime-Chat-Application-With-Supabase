@@ -1,12 +1,13 @@
+"use client";
 import Hero from "@/components/home/Hero";
-import { getCurrentUser } from "@/lib/utils/user";
+import { useCurrentUser } from "@/hooks";
 
-export default async function Home() {
-  const user = await getCurrentUser();
+export default function Home() {
+  const { user } = useCurrentUser();
 
   return (
     <div className="flex-1 flex flex-col">
-      <Hero user={user}/>
+      <Hero user={user} />
     </div>
   );
 }

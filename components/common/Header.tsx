@@ -9,8 +9,8 @@ import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { getRandomUserProfileImg } from "@/lib/utils/user";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
@@ -102,9 +102,9 @@ const Header = () => {
                 </div>
                 <LogoutModal
                   className="py-0 -mt-1 dark:!text-[#d7dfe8] !text-[#1e293b] font-normal bg-transparent hover:bg-transparent shadow-none border-none justify-start pl-3 dark:hover:!text-primary-color"
-                  onConfirmation={() => {
+                  onConfirmation={async () => {
                     const supabase = createBrowserSupabaseClient;
-                    supabase.auth.signOut();
+                    await supabase.auth.signOut();
                     setIsUserActionVisible(false);
                     router.push("/");
                   }}

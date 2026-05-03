@@ -60,7 +60,7 @@ const getMessages = async (roomId: string) => {
   const { data: messages, error } = await supabase
     .from("messages")
     .select(
-      "id, text, image_url, created_at, author_id, author:user_profiles(name, image_url)",
+      "id, text, image_url, audio_url, created_at, author_id, author:user_profiles(name, image_url)",
     )
     .eq("chat_room_id", roomId)
     .order("created_at", { ascending: true })

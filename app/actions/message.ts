@@ -5,11 +5,12 @@ import { getCurrentUser } from "@/lib/utils/user";
 
 export type Message = {
   id: string;
-  text: string;
+  text: string | null;
   created_at: string;
   author_id: string;
   image_url?: string;
-  status?: "sending" | "error" | "image-uploading" | "image-error";
+  audio_url?: string;
+  status?: "sending" | "error" | "image-uploading" | "image-error" | "audio-uploading" | "audio-error";
   author: {
     name: string;
     image_url: string;
@@ -17,10 +18,11 @@ export type Message = {
 };
 
 export const sendMessage = async (
-  text: string,
+  text: string | null,
   roomId: string,
   imageSrc?: string,
   messageId?: string,
+  audioUrl?: string,
 ): Promise<
   { error: false; message: Message } | { error: true; message: string }
 > => {
@@ -51,9 +53,10 @@ export const sendMessage = async (
       text: text ?? null,
       author_id: user?.id,
       image_url: imageSrc ?? null,
+      audio_url: audioUrl ?? null,
     })
     .select(
-      "id, text, image_url, created_at, author_id, author:user_profiles(*)",
+      "id, text, image_url, audio_url, created_at, author_id, author:user_profiles(*)",
     )
     .single();
 

@@ -18,7 +18,7 @@ import {
 import { Message, sendMessage } from "@/app/actions/message";
 import { Camera, X, Mic } from "lucide-react";
 import { toast } from "react-toastify";
-import { uploadImage } from "@/app/actions/upload";
+import { uploadImage, uploadAudio } from "@/app/actions/upload";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import ImageViewerModal from "./modals/ImageViewerModal";
@@ -28,6 +28,7 @@ import CustomAudioPlayer from "./common/CustomAudioPlayer";
 /**
  * TODO[REFACTOR_1]: Make the CustomAudioPlayer more response for 300px width device
  * TODO[FEAT_2]: Add audio duration on the CustomAudioPlayer and when I listen to it, it will show what is left to listen
+ * TODO[FEAT_3]: User can send single audio or single image, or both together, and also both separately with text, but not text image audio together
  */
 
 export function ChatInput({
@@ -43,7 +44,6 @@ export function ChatInput({
     image_url: string;
   };
 }) {
-  console.log("ChatInput rendered");
   const [message, setMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -155,10 +155,66 @@ export function ChatInput({
     }
   };
 
-  useEffect(() => {
-    console.log("audioChunks", audioChunks);
-    console.log("audioChunks len", audioChunks.length);
-  }, [audioChunks]);
+  const handleSendAudio = async (audioBlob: Blob) => {
+    if (isUploading) return;
+    setIsUploading(true);
+    setAudioChunks([]);
+    setIsTextFieldDisabled(false);
+
+    const messageId = crypto.randomUUID();
+    const newMessage: Message = {
+      id: messageId,
+      text: null,
+      created_at: new Date().toISOString(),
+      author_id: user.id,
+      status: "audio-uploading",
+      author: {
+        name: user.name,
+        image_url: user.image_url,
+      },
+    };
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "audio.webm");
+    const uploadResult = await uploadAudio(formData);
+
+    if (!uploadResult.success) {
+      toast.error(uploadResult.error);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId ? { ...msg, status: "audio-error" } : msg,
+        ),
+      );
+      setIsUploading(false);
+      return;
+    }
+
+    const result = await sendMessage(
+      null,
+      roomId,
+      undefined,
+      messageId,
+      uploadResult.url,
+    );
+    setIsUploading(false);
+
+    if (result?.error) {
+      toast.error(result.message);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId ? { ...msg, status: "error" } : msg,
+        ),
+      );
+    } else {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId ? result.message : msg,
+        ),
+      );
+    }
+  };
 
   const audioSrc = URL.createObjectURL(
     new Blob(audioChunks, { type: "audio/webm" }),
@@ -177,6 +233,7 @@ export function ChatInput({
         setIsTextFieldDisabled={setIsTextFieldDisabled}
         mediaRecorderRef={mediaRecorderRef}
         setAudioChunks={setAudioChunks}
+        onSendAudio={handleSendAudio}
       />
       {audioChunks.length > 0 && (
         <CustomAudioPlayer

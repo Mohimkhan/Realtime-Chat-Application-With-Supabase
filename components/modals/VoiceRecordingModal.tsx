@@ -7,6 +7,7 @@ import {
   SetStateAction,
   useEffect,
   useState,
+  useRef,
 } from "react";
 import { Button } from "../ui/button";
 import { Square, Trash2, Send, Triangle } from "lucide-react";
@@ -18,6 +19,7 @@ interface VoiceRecordingModalProps {
   setIsTextFieldDisabled: Dispatch<SetStateAction<boolean>>;
   setAudioChunks: Dispatch<SetStateAction<Blob[]>>;
   mediaRecorderRef: MutableRefObject<MediaRecorder | null>;
+  onSendAudio: (blob: Blob) => void;
 }
 
 export default function VoiceRecordingModal({
@@ -26,9 +28,11 @@ export default function VoiceRecordingModal({
   setIsTextFieldDisabled,
   setAudioChunks,
   mediaRecorderRef,
+  onSendAudio,
 }: VoiceRecordingModalProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
+  const shouldSendRef = useRef(false);
 
   const stopTracks = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
@@ -39,6 +43,7 @@ export default function VoiceRecordingModal({
   };
 
   const handleCancel = () => {
+    shouldSendRef.current = false;
     setOpen(false);
     setIsRecording(false);
     setIsTextFieldDisabled(false);
@@ -55,6 +60,7 @@ export default function VoiceRecordingModal({
   };
 
   const handleDone = () => {
+    shouldSendRef.current = true;
     setOpen(false);
     setIsRecording(false);
 
@@ -114,10 +120,22 @@ export default function VoiceRecordingModal({
           const mediaRecorder = new MediaRecorder(stream);
           mediaRecorderRef.current = mediaRecorder;
 
+          let localChunks: Blob[] = [];
+
           mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
+              localChunks.push(event.data);
               setAudioChunks((prev) => [...prev, event.data]);
             }
+          };
+
+          mediaRecorder.onstop = () => {
+            if (shouldSendRef.current) {
+              const audioBlob = new Blob(localChunks, { type: "audio/webm" });
+              onSendAudio(audioBlob);
+              shouldSendRef.current = false;
+            }
+            localChunks = [];
           };
 
           mediaRecorder.start();

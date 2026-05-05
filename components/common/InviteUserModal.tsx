@@ -250,11 +250,11 @@ const InviteUserModal = ({
               <Image
                 src={userInfo.image_url}
                 alt={userInfo.name}
-                width={30}
-                height={30}
-                className="rounded-full"
+                width={35}
+                height={35}
+                className="rounded-full aspect-square object-cover border-[1.5px] border-black/10 dark:border-gray-400"
               />
-              <span>{userInfo.name}</span>
+              <span className="text-sm">{userInfo.name}</span>
             </div>
           )}
           <DialogFooter>

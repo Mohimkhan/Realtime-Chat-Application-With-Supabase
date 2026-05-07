@@ -34,7 +34,8 @@ export async function uploadAudio(formData: FormData): Promise<UploadResult> {
           .upload_stream(
             {
               folder: "chat-app-audios",
-              resource_type: "video", // Cloudinary uses video for audio
+              resource_type: "video", // Cloudinary uses video for
+              format: "mp3",
             },
             (error, result) => {
               if (error) reject(error);

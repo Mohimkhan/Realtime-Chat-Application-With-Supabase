@@ -47,7 +47,7 @@ export function ChatMessage({
           <CustomAudioPlayer
             audioSrc={audio_url}
             className="static bottom-auto left-auto translate-x-0 mx-0 w-full max-w-full bg-transparent shadow-none p-1"
-            hiddenRemoveBtn={author_id !== currentUserId}
+            hiddenRemoveBtn={author_id !== currentUserId} // only show remove button if the message is from the current user
           />
         </div>
       );
@@ -119,7 +119,7 @@ export function ChatMessage({
           </span>
         </div>
       )}
-      
+
       <div
         className={`w-full flex flex-col gap-2 ${author_id === currentUserId ? "items-start" : "items-end"} ${status === "sending" ? "opacity-50" : ""}`}
       >

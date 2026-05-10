@@ -37,7 +37,7 @@ export function ChatMessage({
     if (audio_url) {
       return (
         <div
-          className={`text-sm bg-blue-600 text-white rounded-md p-2 flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} gap-2 text-justify w-fit`}
+          className={`text-sm bg-blue-600 text-white rounded-md p-2 flex flex-col ${author_id === currentUserId ? "items-start" : "items-end"} gap-2 text-justify w-full max-w-sm`}
         >
           {text && (
             <div className="flex w-full px-1">

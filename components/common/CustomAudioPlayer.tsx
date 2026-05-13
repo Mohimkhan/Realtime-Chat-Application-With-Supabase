@@ -1,10 +1,13 @@
 import { cn } from "@/lib/utils/cn";
 import { Pause, Play, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-/**
- * TODO[FEAT_1]: Add audio duration on the CustomAudioPlayer and when I listen to it, it will show what is left to listen
- */
+const formatTime = (seconds: number): string => {
+  if (!isFinite(seconds) || isNaN(seconds)) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+};
 
 const CustomAudioPlayer = ({
   audioSrc,
@@ -19,25 +22,65 @@ const CustomAudioPlayer = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const waveformRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isHoveringTimer, setIsHoveringTimer] = useState(false);
+  const [barCount, setBarCount] = useState(30);
+  console.log("src", audioSrc);
+
+  // Each bar: 4px wide + 3px gap = 7px per bar
+  const BAR_WIDTH = 4;
+  const BAR_GAP = 3;
+
+  const updateBarCount = useCallback((width: number) => {
+    const count = Math.max(8, Math.floor(width / (BAR_WIDTH + BAR_GAP)));
+    setBarCount(count);
+  }, []);
+
+  useEffect(() => {
+    const el = waveformRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      updateBarCount(entry.contentRect.width);
+    });
+    observer.observe(el);
+    // Initial measurement
+    updateBarCount(el.getBoundingClientRect().width);
+    return () => observer.disconnect();
+  }, [updateBarCount]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration ?? 0);
+    };
+
     const updateProgress = () => {
+      setCurrentTime(audio.currentTime);
       setProgress((audio.currentTime / audio.duration) * 100 || 0);
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
       setProgress(0);
+      setCurrentTime(0);
     };
 
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("timeupdate", updateProgress);
     audio.addEventListener("ended", handleEnded);
 
+    // In case metadata is already loaded (e.g. cached)
+    if (audio.readyState >= 1) {
+      setDuration(audio.duration ?? 0);
+    }
+
     return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("timeupdate", updateProgress);
       audio.removeEventListener("ended", handleEnded);
     };
@@ -86,18 +129,22 @@ const CustomAudioPlayer = ({
         )}
       </button>
 
-      <div className="flex items-center justify-center gap-[3px] flex-1 mx-4 h-6">
-        {[...Array(30)].map((_, i) => {
-          const isActive = progress > (i / 30) * 100;
-          const height = [
-            40, 60, 80, 100, 70, 50, 90, 60, 80, 40, 50, 90, 70, 100, 60, 40,
-            80, 90, 50, 70, 100, 60, 40, 80, 90, 50, 70, 80, 60, 40,
-          ][i];
+      <div
+        ref={waveformRef}
+        className="flex items-center justify-center gap-[3px] flex-1 min-w-0 mx-3 h-6 overflow-hidden"
+      >
+        {[...Array(barCount)].map((_, i) => {
+          const isActive = progress > (i / barCount) * 100;
+          // Generate a pseudo-random but stable height pattern using sine waves
+          const height = Math.round(
+            55 + 40 * Math.abs(Math.sin((i * 7 + 3) * 0.37)),
+          );
           return (
             <div
               key={i}
-              className={`w-1 rounded-full transition-colors duration-200 ${isActive ? "bg-white" : "bg-black/20"}`}
+              className={`rounded-full transition-colors duration-200 flex-shrink-0 ${isActive ? "bg-white" : "bg-black/20"}`}
               style={{
+                width: `${BAR_WIDTH}px`,
                 height: `${height}%`,
               }}
             />
@@ -105,15 +152,35 @@ const CustomAudioPlayer = ({
         })}
       </div>
 
-      {!hiddenRemoveBtn && (
-        <button
-          type="button"
-          onClick={onRemove}
-          className="flex items-center justify-center size-8 bg-black/15 hover:bg-black/25 text-white rounded-full transition-colors flex-shrink-0"
+      {/* Timer / Duration area — hover to reveal X button */}
+      <div
+        className="relative flex items-center flex-shrink-0 cursor-pointer"
+        onMouseEnter={() => setIsHoveringTimer(true)}
+        onMouseLeave={() => setIsHoveringTimer(false)}
+      >
+        {/* X button — only visible on hover, sits over the timer */}
+        {!hiddenRemoveBtn && isHoveringTimer && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove?.();
+            }}
+            className="absolute z-10 top-1/2 -translate-y-1/2 translate-x-1 inset-0 flex items-center justify-center size-8 bg-black/15 hover:bg-black/25 text-white rounded-full transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
+
+        <span
+          className={cn(
+            "text-white text-xs font-medium tabular-nums transition-opacity duration-150 min-w-[36px] text-center",
+            !hiddenRemoveBtn && isHoveringTimer ? "opacity-0" : "opacity-100",
+          )}
         >
-          <X size={16} />
-        </button>
-      )}
+          {isPlaying ? formatTime(currentTime) : formatTime(duration)}
+        </span>
+      </div>
     </div>
   );
 };

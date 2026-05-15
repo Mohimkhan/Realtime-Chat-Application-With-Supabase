@@ -7,7 +7,6 @@ import CustomAudioPlayer from "./common/CustomAudioPlayer";
 
 /**
  * TODO[FIX_1]: Handle image-error status
- * TODO[REFACTOR_2]: Refactor the status image-uploading to be more simplier with if else conditions
  */
 
 export function ChatMessage({

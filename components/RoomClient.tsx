@@ -43,7 +43,10 @@ export default function RoomClient({
               {connectedUsers} {connectedUsers === 1 ? "user" : "users"} online
             </CardDescription>
           </CardHeader>
-          <InviteUserModal roomId={room.id} userId={user.id} />
+          <InviteUserModal
+            roomId={room.id}
+            userId={user.id}
+          />
         </Card>
       </div>
 

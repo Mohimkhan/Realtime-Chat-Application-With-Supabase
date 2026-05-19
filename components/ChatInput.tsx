@@ -26,9 +26,7 @@ import VoiceRecordingModal from "./modals/VoiceRecordingModal";
 import CustomAudioPlayer from "./common/CustomAudioPlayer";
 
 /**
- * TODO[REFACTOR_1]: Make the CustomAudioPlayer more response for 300px width device
- * TODO[FEAT_2]: Add audio duration on the CustomAudioPlayer and when I listen to it, it will show what is left to listen
- * TODO[FEAT_3]: User can send single audio or single image, or both together, and also both separately with text, but not text image audio together
+ * TODO[FEAT_1]: User can send single audio or single image, or both together, and also both separately with text, but not text image audio together
  */
 
 export function ChatInput({
@@ -97,6 +95,11 @@ export function ChatInput({
     const text = message?.trim();
     if (!text && !selectedFile) return;
     if (isUploading) return;
+
+    if (text && selectedFile && !!audioChunks.length) {
+      toast.error("You can't send text, image and audio at the same time");
+      return;
+    }
 
     setIsUploading(true);
 
@@ -288,7 +291,7 @@ export function ChatInput({
                     type="file"
                     name="fileUpload"
                     id="fileUpload"
-                    className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none" : ""}`}
+                    className={`opacity-0 [grid-area:overlay] size-10 cursor-pointer ${isUploading ? "pointer-events-none cursor-not-allowed opacity-50" : ""}`}
                     accept="image/*"
                     onChange={handleFileChange}
                   />
@@ -337,7 +340,7 @@ export function ChatInput({
                 handleSubmit(e);
               }
             }}
-            disabled={isTextFieldDisabled}
+            disabled={isTextFieldDisabled || !!audioChunks.length}
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton

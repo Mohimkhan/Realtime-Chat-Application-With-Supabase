@@ -28,7 +28,6 @@ const CustomAudioPlayer = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [isHoveringTimer, setIsHoveringTimer] = useState(false);
   const [barCount, setBarCount] = useState(30);
-  console.log("src", audioSrc);
 
   // Each bar: 4px wide + 3px gap = 7px per bar
   const BAR_WIDTH = 4;

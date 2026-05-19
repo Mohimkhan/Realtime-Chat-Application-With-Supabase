@@ -185,6 +185,9 @@ export default function VoiceRecordingModal({
       open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
+        if (!isOpen) {
+          setIsTextFieldDisabled(false);
+        }
       }}
     >
       <DialogContent className="sm:max-w-md bg-white dark:bg-black rounded-2xl">

@@ -2,52 +2,37 @@
 
 import { ComponentPropsWithoutRef } from "react";
 import { ActionButton } from "../ui/action-button";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { joinRoomAction } from "@/app/actions/rooms";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 export function JoinedRoomButton({
   roomId,
   children,
+  onSuccess,
   ...props
 }: Omit<ComponentPropsWithoutRef<typeof ActionButton>, "action"> & {
   roomId: string;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
 
   const joinRoom = async () => {
-    const supabase = createBrowserSupabaseClient;
+    const result = await joinRoomAction(roomId);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { error: true, message: "User not logged In" };
-    }
-
-    const { error } = await supabase.from("chat_room_member").insert({
-      chat_room_id: roomId,
-      member_id: user.id,
-    });
-
-    if (error) {
-      return { error: true, message: "Failed to join room" };
+    if (result.error) {
+      return { error: true, message: result.message };
     }
 
     toast.success("Room joined successfully");
-
-    router.refresh();
+    onSuccess?.();
     router.push(`/rooms/${roomId}`);
 
-    return { error: false, message: "Room joined successfully" };
+    return { error: false, message: result.message };
   };
 
   return (
-    <ActionButton
-      {...props}
-      action={joinRoom}
-    >
+    <ActionButton {...props} action={joinRoom}>
       {children}
     </ActionButton>
   );

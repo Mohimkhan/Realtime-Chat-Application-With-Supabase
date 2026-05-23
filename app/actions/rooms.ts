@@ -6,6 +6,12 @@ import { getCurrentUser } from "@/lib/utils/user";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+export type PublicRoom = {
+  id: string;
+  name: string;
+  memberCount: number;
+};
+
 export async function createRoom(data: z.infer<typeof createRoomSchema>) {
   const { success } = createRoomSchema.safeParse(data);
 
@@ -48,4 +54,96 @@ export async function createRoom(data: z.infer<typeof createRoomSchema>) {
   }
 
   redirect(`/rooms/${room.id}`);
+}
+
+export async function getPublicRoomsAction(): Promise<PublicRoom[]> {
+  const supabase = await createServerSupabaseAdminClient();
+
+  const { data: rooms, error } = await supabase
+    .from("chat_rooms")
+    .select("id, name, chat_room_member (count)")
+    .eq("is_public", true)
+    .order("name", { ascending: true });
+
+  if (error || !rooms) return [];
+
+  return rooms.map((room) => ({
+    id: room.id,
+    name: room.name,
+    memberCount: (room.chat_room_member[0] as { count: number })?.count ?? 0,
+  }));
+}
+
+export async function getJoinedRoomsAction(): Promise<PublicRoom[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const supabase = await createServerSupabaseAdminClient();
+
+  const { data: rooms, error } = await supabase
+    .from("chat_rooms")
+    .select("id, name, chat_room_member (member_id)")
+    .eq("is_public", true)
+    .order("name", { ascending: true });
+
+  if (error || !rooms) return [];
+
+  return rooms
+    .filter((room) =>
+      room.chat_room_member.some(
+        (member: { member_id: string }) => member.member_id === user.id,
+      ),
+    )
+    .map((room) => ({
+      id: room.id,
+      name: room.name,
+      memberCount: room.chat_room_member.length,
+    }));
+}
+
+export async function joinRoomAction(
+  roomId: string,
+): Promise<{ error: boolean; message: string }> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: true, message: "User not logged in" };
+  }
+
+  const supabase = await createServerSupabaseAdminClient();
+
+  const { error } = await supabase.from("chat_room_member").insert({
+    chat_room_id: roomId,
+    member_id: user.id,
+  });
+
+  if (error) {
+    return { error: true, message: "Failed to join room" };
+  }
+
+  return { error: false, message: "Room joined successfully" };
+}
+
+export async function leaveRoomAction(
+  roomId: string,
+): Promise<{ error: boolean; message: string }> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: true, message: "User not logged in" };
+  }
+
+  const supabase = await createServerSupabaseAdminClient();
+
+  const { error } = await supabase
+    .from("chat_room_member")
+    .delete()
+    .eq("chat_room_id", roomId)
+    .eq("member_id", user.id);
+
+  if (error) {
+    return { error: true, message: "Failed to leave room" };
+  }
+
+  return { error: false, message: "Room left successfully" };
 }

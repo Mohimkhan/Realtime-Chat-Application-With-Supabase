@@ -5,12 +5,13 @@ import { useState } from "react";
 import { appName } from "@/constants";
 import LogoutModal from "../modals/LogoutModal";
 import { ThemeBtn } from "./ThemeBtn";
-import { KeyboardIcon, Crown, Settings, User, LogOut } from "lucide-react";
+import { KeyboardIcon, Settings, User, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
 import { getRandomUserProfileImg } from "@/lib/utils/user";
 import { useRouter } from "next/navigation";
+import { NotificationSidebar } from "./NotificationSidebar";
 
 const Header = () => {
   const [isUserActionVisible, setIsUserActionVisible] = useState(false);
@@ -63,15 +64,10 @@ const Header = () => {
                 </Link>
               </li>
               <li className="flex justify-start items-center flex-row -gap-3 group">
-                <div className="text-xs dark:text-[#e6eef7] text-[#1e293b]">
-                  <Crown size={20} />
+                <div className="text-xs dark:text-[#e6eef7] text-[#1e293b] -ml-2">
+                  <NotificationSidebar />
                 </div>
-                <Link
-                  href="/leaderboard"
-                  className="group-hover:text-primary-color"
-                >
-                  LeaderBoard
-                </Link>
+                <span className="group-hover:text-primary-color ml-2">Notifications</span>
               </li>
               <li className="flex justify-start items-center flex-row -gap-3 group">
                 <div className="text-xs dark:text-[#e6eef7] text-[#1e293b]">
@@ -129,11 +125,7 @@ const Header = () => {
                 <KeyboardIcon />
               </Link>
             </div>
-            <div className="text-xl dark:text-[#e6eef7] text-[#1e293b] hover:scale-125">
-              <Link href="/leaderboard">
-                <Crown />
-              </Link>
-            </div>
+            <NotificationSidebar />
             <div className="text-xl dark:text-[#e6eef7] text-[#1e293b] hover:scale-125">
               <Link href="/settings">
                 <Settings />

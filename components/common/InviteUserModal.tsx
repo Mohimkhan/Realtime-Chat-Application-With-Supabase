@@ -23,8 +23,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { sendInviteEmail } from "@/app/actions/email";
-import { getInviteEmailHtml } from "@/lib/utils/emailTemplate";
+import { createInviteNotification } from "@/app/actions/notifications";
 
 const inviteUserSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -87,25 +86,6 @@ const InviteUserModal = ({
       return;
     }
 
-    const { data: roomData, error } = await supabase
-      .from("chat_room_member")
-      .insert({
-        chat_room_id: roomId,
-        member_id: userInfo.id,
-      })
-      .select("*")
-      .maybeSingle();
-
-    if (error) {
-      toast.error("An error occurred while inviting user");
-      return;
-    }
-
-    if (roomData?.member_id) {
-      toast.success("User invited successfully");
-      reset();
-    }
-
     const { data: senderData } = await supabase
       .from("user_profiles")
       .select("name, image_url")
@@ -113,35 +93,20 @@ const InviteUserModal = ({
       .maybeSingle();
 
     const senderName = senderData?.name || "A user";
-    const senderImage =
-      senderData?.image_url ||
-      "https://ui-avatars.com/api/?name=" + encodeURIComponent(senderName);
-    const roomLink =
-      typeof window !== "undefined"
-        ? window.location.origin + "/rooms/" + roomId
-        : "";
-
-    const emailHtml = getInviteEmailHtml({
-      senderName,
-      senderImage,
-      receiverName: userInfo.name,
-      receiverImage: userInfo.image_url,
-      roomLink,
-    });
 
     try {
-      await sendInviteEmail({
-        to: userInfo.email,
-        subject: `You have been invited to a RapidChat room by ${senderName}`,
-        text: `${senderName} has invited you to join a chat room on RapidChat. Join here: ${roomLink}`,
-        html: emailHtml,
-      });
+      await createInviteNotification(
+        userInfo.id,
+        roomId,
+        `${senderName} invited you to join a room`
+      );
 
+      toast.success("User invited successfully");
       setOpen(false);
       setUserInfo(null);
       reset();
     } catch {
-      toast.error("An error occurred while sending invitation email");
+      toast.error("An error occurred while sending invitation");
     }
   };
 
@@ -190,7 +155,7 @@ const InviteUserModal = ({
   return (
     <Dialog
       open={open}
-      onOpenChange={(isOpen) => {
+      onOpenChange={(isOpen: boolean) => {
         setOpen(isOpen);
         if (!isOpen) {
           setUserInfo(null);
@@ -218,7 +183,7 @@ const InviteUserModal = ({
           <DialogHeader className="gap-2">
             <DialogTitle>Enter you&apos;re friend&apos;s email</DialogTitle>
             <DialogDescription>
-              You&apos;re friend will get an email with a link to join the chat.
+              Your friend will receive a notification to join the chat.
             </DialogDescription>
           </DialogHeader>
           <Controller
